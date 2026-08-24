@@ -1,6 +1,6 @@
 ---
 name: rendering-and-datasource
-description: Use when a rendering's `.cshtml` has wording, validation rules/messages, option lists, or links hardcoded directly in the markup, and it needs to become a real Sitecore-driven component - authors edit it through Content Editor/Experience Editor instead of a developer editing HTML. Covers reading hardcoded HTML/markup to classify every literal into a field (wording vs. parameter vs. option-list vs. link), grouping fields into Template Sections rather than a flat field list, the Shared-field rule for non-translatable parameters (no per-language instance), a repeatable-option-list pattern for things like dropdown/checkbox choices, per-language Standard Values defaults for every supported language, detecting whether the rendering must be a View Rendering or Controller Rendering from how it's actually invoked and wiring its Datasource Template/Datasource Location fields, and the mandatory design-plan approval gate (template path, datasource path, rendering type, and field/standard-value design) before anything is created in Sitecore. This is solution-agnostic guidance, not tied to any specific SharpPS solution's naming or content. Builds on top of the `sitecore` skill's template/rendering/datasource creation mechanics (SPE, paths, sections/fields) rather than duplicating them - read that skill first if unfamiliar with it.
+description: Use when a rendering's `.cshtml` has wording, validation rules/messages, option lists, or links hardcoded directly in the markup, and it needs to become a real Sitecore-driven component - authors edit it through Content Editor/Experience Editor instead of a developer editing HTML. Covers reading hardcoded HTML/markup to classify every literal into a field (wording vs. parameter vs. option-list vs. link), grouping fields into Template Sections rather than a flat field list, the Shared-field rule for non-translatable parameters (no per-language instance), a repeatable-option-list pattern for things like dropdown/checkbox choices, per-language Standard Values defaults for every supported language, detecting whether the rendering must be a View Rendering or Controller Rendering from how it's actually invoked and wiring its Datasource Template/Datasource Location fields, the mandatory design-plan approval gate (template path, datasource path, rendering type, and field/standard-value design) before anything is created in Sitecore, and - after live creation - getting the new items into the workspace's own serialized item tree (Unicorn/Export-UnicornItem, not just "created in Sitecore and done"). This is solution-agnostic guidance, not tied to any specific SharpPS solution's naming or content. Builds on top of the `sitecore` skill's template/rendering/datasource creation and serialization mechanics (SPE, paths, sections/fields, Unicorn export) rather than duplicating them - read that skill first if unfamiliar with it.
 ---
 
 # Converting hardcoded HTML into a Sitecore-driven datasource
@@ -15,8 +15,8 @@ below to whatever component you're actually converting.
 
 This skill assumes the `sitecore` skill's CMS workflow (template/rendering/
 datasource paths, `New-SPESession` + `Invoke-RemoteScript` mechanics,
-`Add-ItemTemplateSection`/`Add-ItemTemplateField`) as its execution engine -
-it is not repeated here. Read that skill first.
+low-level Template Section/Template Field item creation, `Add-BaseTemplate`)
+as its execution engine - it is not repeated here. Read that skill first.
 
 ## Workflow: Spec -> Template Design Plan (needs approval) -> Execution
 
@@ -69,22 +69,52 @@ creating anything (see "Approval gate" below):**
    create the template or rendering speculatively and adjust after the
    fact.**
 
-**Execution (only after approval):**
-1. Create the template/sections/fields, rendering, and datasource item
-   exactly as approved, using the `sitecore` skill's SPE mechanics and path
-   conventions.
-2. Create the template's `__Standard Values` item and populate it exactly
-   as approved - the Shared defaults once, and a language version per
-   supported language for every Unversioned/Versioned field (see Step 6).
-3. Create the rendering item as the type detected in Step 7 (View or
-   Controller), with `Datasource Template` and `Datasource Location` set
-   to the template/datasource paths from this same run (see Step 7).
-4. Rewrite the `.cshtml` to read every converted value from the datasource
-   instead of the literal (see "Rewiring the .cshtml" below).
-5. Report back the template/rendering/datasource paths and confirm the
-   rewritten markup renders the same output when the datasource is
-   populated with the original hardcoded values (a no-op visual diff is the
-   correctness check).
+**Execution (only after approval) - six parts, in this order:**
+
+1. **Connect.** Try `New-SPESession` against the target instance with its
+   default credentials first (per the `sitecore` skill). If that fails,
+   don't retry blindly or give up silently - stop and ask the user to pick
+   one:
+   - supply the actual credentials (or a different URL, if the default one
+     turns out wrong/unreachable), or
+   - hand-author the serialized item files directly instead of creating
+     live (no instance reachable at all right now) - acceptable as a
+     fallback, but tell the user explicitly that this is what's happening
+     and that GUIDs/behavior won't be instance-verified until it's
+     eventually synced, unlike the live-creation path below.
+   Only proceed past this point once one of those is settled - don't
+   silently fall back to hand-authoring just because the default
+   credentials didn't work on the first try.
+2. **Apply the creation script via SPE.** Create the template/sections/
+   fields, the `__Standard Values` item (populated exactly as approved -
+   Shared defaults once, a language version per supported language for
+   everything else, per Step 6), and the rendering item (the type detected
+   in Step 7, with `Datasource Template`/`Datasource Location` set to this
+   run's own paths) - all in one `New-SPESession` + `Invoke-RemoteScript`
+   session, per the `sitecore` skill's mechanics.
+3. **Serialize/export the created items.** Per the `sitecore` skill's
+   "Serializing an item to disk" workflow: check whether the solution has
+   Unicorn configured for these paths, and if so use its own
+   `Export-UnicornItem -Recurse` (not SPE's plain `Export-Item`) on each
+   root item just created.
+4. **Copy the result into the workspace at the same relative path Unicorn
+   itself uses** - resolve the real `PhysicalRootPath` from the live
+   configuration object (a field, not a property) rather than guessing
+   from a `$(token)` in the config file, and retrieve the written files
+   onto the workspace's machine (`Receive-RemoteItem`, or
+   `Invoke-RemoteScript` returning file content) when the instance isn't
+   on the same filesystem. Skip this step entirely (nothing to copy) if
+   step 1 went the hand-authored-fallback route instead of live creation.
+5. **Rewrite the `.cshtml`** to read every converted value from the
+   datasource instead of the literal (see "Rewiring the .cshtml" below),
+   and confirm the rewritten markup renders the same output when the
+   datasource is populated with the original hardcoded values (a no-op
+   visual diff is the correctness check).
+6. **Document.** Capture what was found/built/decided - the design
+   deviations from Steps 1-7's default recommendations, which path was
+   taken at step 1 and why, anything discovered about the target
+   solution's own conventions along the way - as a durable record, not
+   left implicit in a chat transcript.
 
 ## Step 1: Extract the configurable surface from the HTML
 
@@ -123,10 +153,11 @@ concern - out of scope here).
 ## Step 3: Group fields into Sections - never a flat field list
 
 Every template built from this workflow must organize its fields into
-**Template Sections** (`Add-ItemTemplateSection`, per the `sitecore`
-skill's example), grouped by what the fields describe - not left as one
-flat list under a single default section. Pick section names that match the
-component's own conceptual grouping, e.g.:
+**Template Sections** (created the same low-level way as any other item -
+`New-Item -ItemType <Template Section ID>` - per the `sitecore` skill's
+example; there is no dedicated "add a section" cmdlet), grouped by what the
+fields describe - not left as one flat list under a single default section.
+Pick section names that match the component's own conceptual grouping, e.g.:
 
 - `Content` / `Copy` - headings, subtitles, disclaimer text
 - `Validation` - one section per form field's parameters+messages, or a
@@ -159,11 +190,18 @@ user-facing wording, mark it Shared** - creating separate language
 instances for a number like `max="5000000"` or a boolean like `required`
 is never correct, since the value doesn't change by language.
 
-Standard SPE template-field creation supports this via switches on
-`Add-ItemTemplateField` (e.g. `-Shared`, `-Unversioned`) - this is standard
-SPE cmdlet behavior, not independently verified against every SPE version,
-so confirm the exact parameter names with `Get-Help Add-ItemTemplateField
--Full` on the target instance before running the creation script.
+There is no dedicated field-creation cmdlet with a `-Shared`/`-Unversioned`
+switch (`Add-ItemTemplateField` does not exist - confirmed live against a
+real SPE Remoting session, `Get-Command` returns nothing under that name or
+any `*Template*` variant). Set sharing directly on the Template Field item
+after creating it, the same way as any other field property:
+
+```powershell
+$field.Editing.BeginEdit()
+$field["Type"] = "Integer"
+$field["Shared"] = "1"   # Shared field - omit, or set "0", for a normal per-language field
+$field.Editing.EndEdit() | Out-Null
+```
 
 ## Step 5: Repeatable option lists - child items, not a delimited field
 
@@ -182,9 +220,29 @@ Pattern:
    folder under it, if the datasource also needs its own non-list fields)
    - no separate path convention needed beyond the `sitecore` skill's
      existing datasource item path.
-3. The `.cshtml` iterates `datasource.Children.Where(c => c.TemplateID ==
-   optionTemplateId)` (ordered by Sitecore's item sort order) instead of
-   looping over a hardcoded array.
+3. The `.cshtml` iterates `datasource.Axes.GetDescendants().Where(c =>
+   c.TemplateID == optionTemplateId)` (ordered by Sitecore's item sort
+   order) instead of looping over a hardcoded array. Use `GetDescendants()`
+   rather than `Children` specifically so the lookup keeps working
+   regardless of how the items underneath are grouped (see the next point)
+   - code that reads options shouldn't need to know or care whether they're
+     one level down or nested in a folder.
+
+**A datasource with more than one option list needs a folder per list** -
+don't let two or more repeatable lists (e.g. a region choice and an
+insurance-coverage choice) land as a single flat, mixed set of children
+under the datasource item. An author opening that item in Content Editor
+can't tell which child belongs to which list at a glance. Instead, create
+one Common/Folder item (`/sitecore/templates/Common/Folder`,
+`{A87A00B1-E6DB-45AB-8B54-636FEC3B5523}` - a real Sitecore system template
+ID, not specific to any one solution) per option list, named for what it
+groups (e.g. `Region`, `Insurance`), and put that list's option items
+under it instead of directly under the datasource item. This is purely an
+authoring/organization aid - it carries no fields and no meaning to the
+code - which is exactly why `GetDescendants()` in step 3 above matters: the
+`.cshtml` finds options by template ID regardless of which folder (or no
+folder) they sit under, so introducing or renaming these folders later
+never requires a code change.
 
 Only apply this pattern to lists the user actually wants author-editable
 (confirmed in Spec) - a list that's effectively fixed (e.g. tied to a
@@ -368,22 +426,30 @@ Standard Value spans/collapses to one column since it has no per-language
 instance (Step 4); leave the other language columns blank rather than
 repeating the same value in each.
 
-## Execution: reuse the `sitecore` skill - don't reinvent the mechanics
+## Execution part 2 details: applying the creation script via SPE
 
-Once the design is approved, follow the `sitecore` skill's "CMS
-content-tree conventions" workflow verbatim for the actual creation:
+This is the detail behind "Execution" step 2 above (Connect already
+happened in step 1; this is what runs once connected) - reuse the
+`sitecore` skill's mechanics rather than reinventing them:
 - Datasource template path, rendering path, datasource item path (same
   `{core}`/`{area}`/`{featurename}`/`{renderingname}` convention).
 - `New-SPESession` + `Invoke-RemoteScript`, one session for
   template+sections+fields+rendering+datasource+options, not several.
-- `Add-ItemTemplateSection` per Section from Step 3, then
-  `Add-ItemTemplateField` per field from Steps 2/4 under the right section
-  (adding the Shared/Unversioned switch decided in Step 4).
+- A Template Section item per Section from Step 3, then a Template Field
+  item per field from Steps 2/4 under the right section (setting the
+  `Shared`/`Unversioned` field per Step 4's decision directly on it - see
+  the `sitecore` skill for the exact low-level creation pattern, since
+  there is no dedicated section/field-creation cmdlet).
 - Create the rendering item as detected/approved in Step 7, with
   `Datasource Template`/`Datasource Location` set to this run's template
   and datasource paths.
 - Create the `__Standard Values` item and populate it per Step 6, in the
   same `Invoke-RemoteScript` session as everything else above.
+
+Execution steps 3-4 (serialize/export, then copy into the workspace at
+Unicorn's own relative path) are the `sitecore` skill's "Serializing an
+item to disk" workflow verbatim - not repeated here; see that skill for the
+`Export-UnicornItem`/`PhysicalRootPath`/`Receive-RemoteItem` mechanics.
 
 ## Rewiring the `.cshtml` to read fields instead of literals
 
