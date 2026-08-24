@@ -214,6 +214,17 @@ creating items** - don't guess a name or assume there's only one.
     administrator account (including the default `sitecore\admin`) can
     connect, without needing to know or pass a specific username up front.
 
+**Reference syntax for SPE cmdlets:** the official Sitecore PowerShell
+Extensions documentation (https://doc.sitecorepowershell.com) is the
+source of truth for exact cmdlet parameters (e.g. `New-Item`,
+`Add-ItemTemplateSection`, `Add-ItemTemplateField`, field-sharing switches)
+- confirm against it (or `Get-Help <cmdlet> -Full` on the target instance)
+before relying on a remembered signature, rather than guessing. The
+"Working with Items" page (https://doc.sitecorepowershell.com/working-with-items)
+covers item creation/editing patterns specifically - the closest match to
+the `New-Item`/`Editing.BeginEdit()`/`Editing.EndEdit()` mechanics used
+throughout this skill.
+
 ### Example: creating a template, rendering, and datasource item
 
 Run everything against the remote session via SPE Remoting's
