@@ -10,7 +10,7 @@
     {
       "name": "sharpps-sitecore",
       "displayName": "SharpPS for Sitecore",
-      "description": "Sitecore/SXA knowledge for solutions built on the SharpPS framework: instance interaction via SharpPS.Shells (PowerShell/SPE), SXA native search (/sxa/search/*), creating Feature/Foundation projects, and building Controller Renderings with a custom .cshtml view path.",
+      "description": "Sitecore/SXA knowledge for solutions built on the SharpPS framework: instance interaction via SharpPS.Shells (PowerShell/SPE) for publish, Unicorn sync, and template/rendering/datasource creation, SXA native search (/sxa/search/*), creating Feature/Foundation projects, building Controller Renderings with a custom .cshtml view path, converting hardcoded HTML into a Sitecore-driven datasource, and authoring/wiring C# processors into Sitecore's own native CorePipeline engine.",
       "author": {
         "name": "SharpPS"
       },
@@ -21,7 +21,7 @@
     {
       "name": "sharpps-liferay",
       "displayName": "SharpPS for Liferay",
-      "description": "Liferay knowledge and workflow tooling for solutions built on the SharpPS framework: Gradle build/deploy, Docker log management, Batch Client Extensions, DDM field validation, Site Initializers, JSP/FTL taglibs, React module scaffolding, management toolbar bulk actions, portlet widget configuration, and navigating the Liferay Portal source.",
+      "description": "Liferay knowledge and workflow tooling for solutions built on the SharpPS framework: Gradle build/deploy, Docker log management, Batch Client Extensions, DDM field validation, Site Initializers, JSP/FTL taglibs, React module scaffolding, management toolbar bulk actions, portlet widget configuration, extending Document Library preview rendering, customizing Data Engine field editors via globalJS Client Extensions, and navigating the Liferay Portal source.",
       "author": {
         "name": "SharpPS"
       },
@@ -32,7 +32,7 @@
     {
       "name": "sharpps-dotnet",
       "displayName": "SharpPS for .NET",
-      "description": ".NET tooling knowledge for solutions built on the SharpPS framework: decompiling .NET Framework and .NET Core/5+ DLLs/EXEs back to C# source via the cross-platform ilspycmd CLI, and the SharpPS.Shells PowerShell pipeline system (running, runtime-patching, and authoring workspace pipelines).",
+      "description": ".NET tooling knowledge for solutions built on the SharpPS framework: decompiling .NET Framework and .NET Core/5+ DLLs/EXEs back to C# source via the cross-platform ilspycmd CLI, the SharpPS.Shells PowerShell pipeline system (registering, running, and runtime-patching named pipelines, plus authoring new workspace pipelines), and the solution's recurring C#/.NET design patterns (DI auto-discovery, pluggable providers, processor pipelines, and the ASP.NET Core plugin-host bootstrap that wires them all up).",
       "author": {
         "name": "SharpPS"
       },
@@ -43,7 +43,7 @@
     {
       "name": "sharpps-work",
       "displayName": "SharpPS for Work",
-      "description": "General office/documentation tooling for solutions built on the SharpPS framework: capturing real screenshots of authenticated web apps via a headless browser (including local multi-tenant/reverse-proxied instances where the real domain doesn't resolve to the dev environment), and generating genuine OpenXML Word (.docx) documents with embedded screenshots, headings, and tables via python-docx.",
+      "description": "General office/documentation tooling for solutions built on the SharpPS framework: capturing real screenshots of authenticated web apps via a headless browser (including local multi-tenant/reverse-proxied instances where the real domain doesn't resolve to the dev environment), generating genuine OpenXML Word (.docx) documents with embedded screenshots, headings, and tables via python-docx, turning a codebase in any language into a queryable knowledge graph via the codebase-memory-mcp MCP server, and writing short, structured Findings/Feedback/Conclusion documentation on a workspace feature.",
       "author": {
         "name": "SharpPS"
       },
