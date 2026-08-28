@@ -1,18 +1,6 @@
 ---
 name: liferay-taglibs
-description: >
-  Use this skill whenever the user asks about Liferay JSP taglibs or FreeMarker (FTL) macros —
-  which tag library to use, how to declare/import one, what tags/macros are available, the
-  difference between using a taglib in a JSP vs. an FTL display template, or how to verify a
-  tag/macro actually exists before using it. Also covers building a custom JSP/FTL taglib from
-  scratch (registration for JSP vs. FTL, sharing logic across separate Portlet Display Template
-  script-files, mounting a React component from a tag, resolving page-level state from
-  RenderRequest instead of FTL parameters, and reflection for calling methods on FTL loop
-  variables whose concrete type is in a non-exported internal package). Trigger for questions
-  like "what taglib has X", "how do I use aui: / liferay-ui: / clay: in this file", "is there an
-  FTL equivalent of <tag>", "can I use <@liferay_xxx.yyy> here", "how do I share logic between
-  display template files", "how do I make a tag that renders a React component", or any work
-  inside a `.jsp`/`.jspf`/`.ftl` file under this workspace's modules or client extensions.
+description: Use whenever the user asks about Liferay JSP taglibs or FreeMarker (FTL) macros — which tag library to use, how to declare/import one, what tags/macros are available, the difference between a taglib in a JSP vs. an FTL display template, or how to verify a tag/macro exists before using it. Also covers building a custom JSP/FTL taglib from scratch (registration for JSP vs. FTL, sharing logic across separate Portlet Display Template script-files, mounting a React component from a tag, resolving page-level state from RenderRequest instead of FTL parameters, and reflection for calling methods on FTL loop variables whose concrete type is in a non-exported internal package). Trigger for "what taglib has X", "how do I use aui: / liferay-ui: / clay: in this file", "is there an FTL equivalent of <tag>", "can I use <@liferay_xxx.yyy> here", "how do I share logic between display template files", "how do I make a tag that renders a React component", or any work inside a `.jsp`/`.jspf`/`.ftl` file.
 ---
 
 # Liferay Taglibs Skill (JSP + FTL)

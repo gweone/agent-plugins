@@ -1,19 +1,6 @@
 ---
 name: liferay-globaljs-editor-extension
-description: >
-  Use this skill whenever the user wants to build a Client Extension that customizes a rendered
-  Data Engine field editor from the browser — Document Types (DLFileEntryType), Objects, or any
-  other Data-Engine-backed form (Forms app included). Trigger for "add UX to this field", "modify
-  a field's editor without replacing it", "show/hide fields based on another field's selection",
-  "add a live hint/format check to a field", "block the Publish/Save button on a condition",
-  "why can't I find this field with querySelector", "globalJS client extension for a form", or
-  any work building/debugging a `type: globalJS` Client Extension that targets
-  `DLAdminPortlet`'s `edit_file_entry` screen or an analogous Data-Engine-rendered edit form. For
-  backend/declarative validation (`customProperties.validation`, `DDMValidation`,
-  `DDMExpressionFunction`, `dataRules`/Form Rules internals) see the companion
-  `liferay-ddm-field-validation` skill instead — this skill is about the browser-side CX that
-  reads/reacts to a rendered form; that one is about what Liferay itself enforces or offers
-  server-side.
+description: Use whenever the user wants to build a Client Extension that customizes a rendered Data Engine field editor from the browser — Document Types (DLFileEntryType), Objects, or any other Data-Engine-backed form (Forms app included). Trigger for "add UX to this field", "modify a field's editor without replacing it", "show/hide fields based on another field's selection", "add a live hint/format check to a field", "block the Publish/Save button on a condition", "why can't I find this field with querySelector", "globalJS client extension for a form", or any work building/debugging a `type: globalJS` Client Extension targeting `DLAdminPortlet`'s `edit_file_entry` screen or an analogous Data-Engine-rendered edit form. For backend/declarative validation (`DDMValidation`, `DDMExpressionFunction`, Form Rules internals) see the companion `liferay-ddm-field-validation` skill instead — that one is server-side, this one is the browser-side CX.
 ---
 
 # Liferay globalJS Client Extension: Extending a Data Engine Field Editor

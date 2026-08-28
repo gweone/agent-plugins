@@ -1,18 +1,6 @@
 ---
 name: liferay-batch-client-extension
-description: >
-  Use this skill whenever the user wants to create, modify, debug, or understand a Liferay
-  "Batch" Client Extension (`type: batch` in client-extension.yaml, `*.batch-engine-data.json`
-  files under a `batch/` folder) — the mechanism for importing Object Definitions, Object
-  Entries, Object Relationships, List Type Definitions, Workflow Definitions, Roles, or User
-  Accounts via the Headless Batch Engine. Trigger for requests like "create a batch client
-  extension", "import object entries via batch", "batch-engine-data.json format", "how do I
-  target a specific site/scopeKey in a batch import", or any work under a
-  `client-extensions/*-batch/batch/` directory. Also trigger when a Site Initializer can't be
-  used because the target is a system-required site (Guest/Global/Control Panel) — batch client
-  extensions are the workaround, since they call REST resources directly and never touch the
-  Group/Site entity itself. See the companion `liferay-site-initializer` skill for that mechanism
-  and exactly why it's blocked for system sites.
+description: Use whenever the user wants to create, modify, debug, or understand a Liferay "Batch" Client Extension (`type: batch` in client-extension.yaml, `*.batch-engine-data.json` files under a `batch/` folder) — the mechanism for importing Object Definitions, Object Entries, Object Relationships, List Type Definitions, Workflow Definitions, Roles, or User Accounts via the Headless Batch Engine. Trigger for "create a batch client extension", "import object entries via batch", "batch-engine-data.json format", "how do I target a specific site/scopeKey in a batch import", or any work under a `client-extensions/*-batch/batch/` directory. Also trigger when a Site Initializer can't be used because the target is a system-required site (Guest/Global/Control Panel) — batch client extensions are the workaround. See the companion `liferay-site-initializer` skill for that mechanism and why it's blocked for system sites.
 ---
 
 # Liferay Batch Client Extension Skill

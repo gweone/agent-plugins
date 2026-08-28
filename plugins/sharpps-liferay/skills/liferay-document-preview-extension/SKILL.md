@@ -1,18 +1,6 @@
 ---
 name: liferay-document-preview-extension
-description: >
-  Use this skill whenever the user wants to change, extend, or debug how Liferay renders a
-  Document Library file's full-content preview — the panel/page you get from
-  `<liferay-asset:asset-display>` (Document Library's own "View File" page, the OOTB Search
-  widget's "view content" result panel, or any other asset-display usage), as opposed to the
-  small thumbnail image in a grid/list card. Trigger for "PDF preview is an image, can't select
-  text", "extend/override document preview", "DLPreviewRendererProvider", "custom PDF viewer",
-  "why does DOCX/Office preview not work", "OpenOffice/LibreOffice conversion not enabled",
-  "preview vs thumbnail", "service.ranking override for preview", "PDFProcessorUtil",
-  "document_preview folder", "DLFileVersionPreview status", or any work adding a
-  `@Component(service = DLPreviewRendererProvider.class)`. Confirmed by reading the real
-  `liferay-portal` source (not assumption) and by inspecting a live `liferay-dev` container/DB —
-  see the reference implementation in this repo's `modules/search`.
+description: Use whenever the user wants to change, extend, or debug how Liferay renders a Document Library file's full-content preview — the panel/page from `<liferay-asset:asset-display>` (Document Library's "View File" page, the Search widget's "view content" result panel, or other asset-display usage), as opposed to the small thumbnail in a grid/list card. Trigger for "PDF preview is an image, can't select text", "extend/override document preview", "DLPreviewRendererProvider", "custom PDF viewer", "why does DOCX/Office preview not work", "OpenOffice/LibreOffice conversion not enabled", "preview vs thumbnail", "service.ranking override for preview", "PDFProcessorUtil", "DLFileVersionPreview status", or any work adding a `@Component(service = DLPreviewRendererProvider.class)`. Confirmed by reading the real `liferay-portal` source and inspecting a live `liferay-dev` container/DB — see the reference implementation in `modules/search`.
 ---
 
 # Extending Document Library Preview Rendering

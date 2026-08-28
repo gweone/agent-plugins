@@ -1,19 +1,6 @@
 ---
 name: liferay-react-module
-description: >
-  Use this skill whenever the user wants to set up, scaffold, or add React support to a
-  traditional Liferay OSGi module — "how do I set up a React module", "add React to this
-  module", "npm-react-portlet", "how do I get a React component rendering in Liferay", "esbuild
-  liferay portlet", "liferay-npm-scripts", "@liferay/frontend-js-react-web", or any work
-  touching a module's package.json/npmscripts.config.js/build.gradle for the purpose of
-  bundling React/TypeScript into a portlet or a custom tag. Covers the decision of whether a
-  traditional module is even the right container (vs. a Client Extension) before scaffolding,
-  and the two concrete patterns seen in this workspace: a whole React-driven portlet (blade's
-  `npm-react-portlet` template) vs. React mounted from inside a custom JSP/FTL tag (this
-  workspace's `modules/search`, a.k.a. sharpps-search). For the Java-side tag mechanics of the
-  second pattern (ReactRenderer, Snapshot, ComponentDescriptor, the shared-parent-div mounting
-  pitfall), see the companion `liferay-taglibs` skill's Section 6 — this skill covers getting
-  npm/React wired into the module in the first place, not the tag-mounting API.
+description: Use whenever the user wants to set up, scaffold, or add React support to a traditional Liferay OSGi module — "how do I set up a React module", "npm-react-portlet", "how do I get a React component rendering in Liferay", "esbuild liferay portlet", "liferay-npm-scripts", "@liferay/frontend-js-react-web", or any work touching a module's package.json/npmscripts.config.js/build.gradle for bundling React/TypeScript into a portlet or custom tag. Covers whether a traditional module is even the right container (vs. a Client Extension) before scaffolding, and the two patterns seen in this workspace: a whole React-driven portlet (blade's `npm-react-portlet` template) vs. React mounted from a custom JSP/FTL tag (`modules/search`, a.k.a. sharpps-search). For the Java-side tag mechanics of the second pattern, see the companion `liferay-taglibs` skill's Section 6 — this skill covers getting npm/React wired into the module, not the tag-mounting API.
 ---
 
 # Liferay React Module Skill

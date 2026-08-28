@@ -1,18 +1,6 @@
 ---
 name: liferay-management-toolbar-search-container
-description: >
-  Use this skill whenever building, fixing, or reviewing a Liferay admin JSP that combines
-  `<clay:management-toolbar selectable="true">` with `<liferay-ui:search-container>` +
-  `com.liferay.portal.kernel.dao.search.RowChecker` — bulk-select checkboxes, a "select all"
-  header checkbox, and a bulk action (delete/add/export) on the checked rows. Trigger for "select
-  all doesn't select everything", "select all only adds/deletes N items" (N usually matching the
-  default page size), "bulk delete not working", "checkbox not submitting", "management toolbar
-  checkbox has no name attribute", "RowChecker", "search container select all", "bulkSelection",
-  "searchContainer.select", "rowToggled event", "propsTransformer for management toolbar",
-  "onActionButtonClick", or any JSP combining these two taglibs with a bulk-action button/dropdown
-  item. Confirmed via extensive live debugging in this project's `modules/search` admin config
-  screens (`field_form.jsp`, `view_fields.jsp`, `view_filters.jsp`, `view_sortings.jsp`,
-  `views_list.jsp`) and by reading the real `liferay-portal` source — not assumption.
+description: Use whenever building, fixing, or reviewing a Liferay admin JSP that combines `<clay:management-toolbar selectable="true">` with `<liferay-ui:search-container>` + `com.liferay.portal.kernel.dao.search.RowChecker` — bulk-select checkboxes, a "select all" header checkbox, and a bulk action (delete/add/export) on checked rows. Trigger for "select all doesn't select everything", "select all only adds/deletes N items" (N usually the default page size), "bulk delete not working", "checkbox not submitting", "management toolbar checkbox has no name attribute", "RowChecker", "bulkSelection", "searchContainer.select", "rowToggled event", "propsTransformer for management toolbar", "onActionButtonClick", or any JSP combining these two taglibs with a bulk-action button/dropdown item. Confirmed via live debugging in `modules/search` admin config screens and by reading the real `liferay-portal` source.
 ---
 
 # Management Toolbar + Search Container: Selection & Bulk Actions
