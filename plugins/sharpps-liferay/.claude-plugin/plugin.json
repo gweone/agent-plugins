@@ -1,7 +1,7 @@
 {
   "name": "sharpps-liferay",
   "displayName": "SharpPS for Liferay",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Liferay knowledge and workflow tooling for solutions built on the SharpPS framework: Gradle build/deploy, Docker log management, Batch Client Extensions, DDM field validation, Site Initializers, JSP/FTL taglibs, React module scaffolding, management toolbar bulk actions, portlet widget configuration, extending Document Library preview rendering, customizing Data Engine field editors via globalJS Client Extensions, and navigating the Liferay Portal source.",
   "author": {
     "name": "SharpPS"

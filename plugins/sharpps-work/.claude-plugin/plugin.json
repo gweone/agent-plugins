@@ -1,7 +1,7 @@
 {
   "name": "sharpps-work",
   "displayName": "SharpPS for Work",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "General office/documentation tooling for solutions built on the SharpPS framework: capturing real screenshots of authenticated web apps via a headless browser (including local multi-tenant/reverse-proxied instances where the real domain doesn't resolve to the dev environment), generating genuine OpenXML Word (.docx) documents with embedded screenshots, headings, and tables via python-docx, turning a codebase in any language into a queryable knowledge graph via the codebase-memory-mcp MCP server, and writing short, humanized Findings/Feedback/Conclusion documentation on a workspace feature to docs/structured-documentation/.",
   "author": {
     "name": "SharpPS"
