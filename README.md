@@ -47,3 +47,20 @@ The `name` field in a marketplace entry is an immutable slug - once a plugin
 has been published, its `name` must not change. If a rename is genuinely
 unavoidable, add an entry to the top-level `renames` map in
 `.claude-plugin/marketplace.json` so existing installs auto-migrate.
+
+## ChatGPT and Codex
+
+The marketplace is also packaged for OpenAI's plugin/skills system. The same `SKILL.md` files are reused so Claude Code, Codex, and ChatGPT do not maintain separate copies of the SharpPS knowledge.
+
+- **Codex marketplace:** `.agents/plugins/marketplace.json`
+- **Repo Agent Skills:** `.agents/skills/`
+- **Canonical skills:** `plugins/*/skills/*/SKILL.md`
+- **Codex/ChatGPT repo guidance:** `AGENTS.md`
+
+Validate the shared skill layout with:
+
+```bash
+./scripts/install-agent-skills.sh --check
+```
+
+For a ChatGPT/Codex workspace, an administrator can import this GitHub repository from **Workspace settings → Plugins → Add → Import marketplace**. Use the repository root as the marketplace path; the supported Codex marketplace manifest is `.agents/plugins/marketplace.json`.

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://developers.openai.com/codex/schemas/marketplace.json",
+  "name": "sharpps-plugins",
+  "description": "SharpPS framework skills for Sitecore, Liferay, .NET, and general engineering/documentation workflows.",
+  "plugins": [
+    {
+      "name": "sharpps-sitecore",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sharpps-sitecore"
+      }
+    },
+    {
+      "name": "sharpps-liferay",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sharpps-liferay"
+      }
+    },
+    {
+      "name": "sharpps-dotnet",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sharpps-dotnet"
+      }
+    },
+    {
+      "name": "sharpps-work",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sharpps-work"
+      }
+    }
+  ]
+}
