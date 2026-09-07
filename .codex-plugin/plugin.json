@@ -1,6 +1,6 @@
 {
   "name": "sharpps-plugins",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "SharpPS framework skills (Sitecore, Liferay, .NET, Work). Install individual plugins; each uses skills under ./plugin/<name>/skills/.",
   "author": {
     "name": "SharpPS",

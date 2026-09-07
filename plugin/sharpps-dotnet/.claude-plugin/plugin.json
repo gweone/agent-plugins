@@ -1,7 +1,7 @@
 {
   "name": "sharpps-dotnet",
   "displayName": "SharpPS for .NET",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": ".NET tooling for SharpPS solutions: decompile Framework and .NET Core/5+ assemblies with ilspycmd, SharpPS.Shells pipelines (register, run, patch), and recurring C# patterns (DI auto-discovery, storage providers, pipeline processors, ASP.NET Core plugin-host bootstrap).",
   "author": {
     "name": "SharpPS"

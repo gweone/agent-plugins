@@ -1,6 +1,6 @@
 {
   "name": "sharpps-plugins",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "SharpPS multi-plugin skills for Grok. Base path is ./plugin/<name>/; skills are ./skills/ relative to each plugin.",
   "homepage": "https://github.com/gweone/agent-plugins",
   "keywords": [

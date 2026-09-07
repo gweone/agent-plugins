@@ -1,6 +1,6 @@
 {
   "name": "sharpps-work",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Office and documentation tooling for SharpPS: headless screenshots of authenticated apps (including multi-tenant/local domains), OpenXML Word (.docx) via python-docx, codebase-memory-mcp knowledge graphs, and short Findings/Feedback/Conclusion docs.",
   "author": {
     "name": "SharpPS",

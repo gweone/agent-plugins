@@ -1,7 +1,7 @@
 {
   "name": "sharpps-sitecore",
   "displayName": "SharpPS for Sitecore",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Sitecore/SXA knowledge for SharpPS solutions: SPE/Shells for publish and Unicorn, SXA search (/sxa/search/*), Feature/Foundation projects, Controller Renderings with custom .cshtml paths, datasource-driven HTML, CorePipeline processors, and idempotent SQL scripts for Database/Database.Tools.",
   "author": {
     "name": "SharpPS"
