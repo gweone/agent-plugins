@@ -1,6 +1,6 @@
 ---
 name: dotnet-service-patterns
-description: Four general-purpose C#/.NET design patterns for a multi-project solution built from independently-shippable modules — convention-based service auto-registration (marker interfaces + assembly-scanning instead of hand-written `AddFoo()` chains), the pluggable-provider pattern (shared interface + fluent builder for named backend registration), a lightweight processor-pipeline pattern (`IProcessor of TArgs` steps behind an `IPipelineConfigurator`), and a composition-root host bootstrap combining the first three into a plugin architecture (AssemblyLoadContext, per-plugin manifest, multi-tenant filtering). Each has a verified SharpPS reference implementation; the first three ship as NuGet packages (`SharpPS.DependencyInjection`, `SharpPS.Pipeline`, `SharpPS.Storage`). Use when designing service registration, adding a pluggable backend, or setting up an ASP.NET Core plugin host. Not the SharpPS.Shells PowerShell pipelines (`sharpps-pipeline`) or Sitecore's pipeline engine (`sharpps-sitecore`'s `sitecore-pipelines`).
+description: Provides patterns and guidance for designing, implementing, reviewing, and troubleshooting .NET services, including dependency injection, configuration, hosted services, logging, HTTP clients, resilience, background processing, testing, and production-ready service structure.
 ---
 
 # Four .NET patterns for modular solutions

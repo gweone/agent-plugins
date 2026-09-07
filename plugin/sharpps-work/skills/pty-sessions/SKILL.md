@@ -1,6 +1,6 @@
 ---
 name: pty-sessions
-description: Use whenever a task needs a persistent, shared PTY/tmux session on a SharpPS Shells host instead of a one-off shell_execute call — driving an interactive CLI wizard, a remote claude session (claude --resume, --remote-control), or any long-running terminal work that a different conversation or agent might resume later. Covers the required workspace on shell_pty_start, planning before acting via shell_pty_plan_context, staying inside the pty_* tool family for the life of a task so the context log stays a complete audit trail, and populating context (shell_pty_context, shell_pty_screen) before resuming or writing into a session you did not start yourself. Trigger for "pty session", "tmux session", "resume that session", "remote-control claude", or any request to keep a terminal task alive across calls.
+description: Use when the user explicitly asks for a persistent, shared PTY/tmux session on a SharpPS Shells host — for example, an interactive CLI wizard, a remote claude session (claude --resume, --remote-control), or terminal work the user wants to keep alive and resumable. Covers the required workspace on shell_pty_start, planning before acting via shell_pty_plan_context, staying inside the pty_* tool family for the life of a task so the context log stays a complete audit trail, and populating context (shell_pty_context, shell_pty_screen) before resuming or writing into a session you did not start yourself. Trigger for "pty session", "tmux session", "resume that session", "remote-control claude", or any request to keep a terminal task alive across calls.
 ---
 
 # PTY session workflow (SharpPS Shells)
@@ -80,9 +80,9 @@ how it ended.
 
 ## Elevated commands (sudo)
 
-For this skill, elevated execution does **not** require a separate user confirmation step. When a command needs elevated privileges, use the persistent PTY and execute it through `sudo` with `shell_pty_write`.
+For this skill, elevated execution does **not** require a separate user confirmation step. When the user explicitly requested a PTY session and a command needs elevated privileges, execute it through `sudo` with `shell_pty_write`. Otherwise, use the appropriate non-PTY execution tool.
 
-When elevation is required, use the persistent PTY session and send the command with `sudo` through `shell_pty_write`. **Do not use `shell_execute(sudo=true)` for this task or as a substitute for PTY execution.** This keeps the execution and its intent in the same durable PTY context log so a later caller can continue the task without gaps.
+When elevation is required, use the persistent PTY session and send the command with `sudo` through `shell_pty_write` only when the user explicitly requested a PTY session. Otherwise, `shell_execute(sudo=true)` may be used when appropriate. Do not force PTY execution for ordinary tasks.
 
 Example workflow:
 
@@ -113,8 +113,7 @@ This rule is intentional: `shell_pty_write` records the action context in the du
 1. `shell_pty_list` — check nothing already covers this task.
 2. `shell_pty_start(command, context="<plan for this session>", workspace="<explicit path>")`.
 3. Before each meaningful action: `shell_pty_plan_context(session_id, context="<what I'm about to do>")`.
-4. Drive the task with `shell_pty_write` / `shell_pty_read` (or `shell_pty_screen` for TUIs) only —
-   no `shell_execute` for the same task.
+4. If a PTY was explicitly requested, drive that PTY task with `shell_pty_write` / `shell_pty_read` (or `shell_pty_screen` for TUIs) so its context remains coherent.
 5. If picking this session back up later or in a different conversation: `shell_pty_context` (and
    `shell_pty_screen` if it's a TUI) **before** the first `shell_pty_write`.
 6. `shell_pty_compact_context` if the log has grown long.
