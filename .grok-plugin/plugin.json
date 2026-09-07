@@ -1,0 +1,12 @@
+{
+  "name": "sharpps-plugins",
+  "version": "1.2.0",
+  "description": "SharpPS multi-plugin skills for Grok. Base path is ./plugin/<name>/; skills are ./skills/ relative to each plugin.",
+  "homepage": "https://github.com/gweone/claude-plugins",
+  "keywords": [
+    "sharpps",
+    "grok",
+    "skills"
+  ],
+  "category": "Development"
+}

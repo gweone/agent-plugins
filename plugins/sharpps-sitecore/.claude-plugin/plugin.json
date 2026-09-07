@@ -1,9 +1,0 @@
-{
-  "name": "sharpps-sitecore",
-  "displayName": "SharpPS for Sitecore",
-  "version": "1.1.3",
-  "description": "Sitecore/SXA knowledge for solutions built on the SharpPS framework: instance interaction via SharpPS.Shells (PowerShell/SPE), SXA native search (/sxa/search/*), creating Feature/Foundation projects, building Controller Renderings with a custom .cshtml view path, converting hardcoded HTML into a Sitecore-driven datasource, authoring/wiring C# processors into Sitecore's own native CorePipeline engine, and writing idempotent SQL scripts for the solution's Database/Database.Tools project pair.",
-  "author": {
-    "name": "SharpPS"
-  }
-}

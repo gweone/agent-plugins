@@ -1,0 +1,20 @@
+{
+  "name": "sharpps-work",
+  "version": "1.2.0",
+  "description": "Office and documentation tooling for SharpPS: headless screenshots of authenticated apps (including multi-tenant/local domains), OpenXML Word (.docx) via python-docx, codebase-memory-mcp knowledge graphs, and short Findings/Feedback/Conclusion docs.",
+  "author": {
+    "name": "SharpPS",
+    "url": "https://github.com/gweone/claude-plugins"
+  },
+  "homepage": "https://github.com/gweone/claude-plugins/tree/main/plugin/sharpps-work",
+  "repository": "https://github.com/gweone/claude-plugins",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "SharpPS for Work",
+    "shortDescription": "Office and documentation tooling for SharpPS: headless screenshots of authenticated apps (including multi-tenant/local domains), OpenXML Word (.docx) via python",
+    "longDescription": "Office and documentation tooling for SharpPS: headless screenshots of authenticated apps (including multi-tenant/local domains), OpenXML Word (.docx) via python-docx, codebase-memory-mcp knowledge graphs, and short Findings/Feedback/Conclusion docs.",
+    "developerName": "SharpPS",
+    "category": "Productivity",
+    "websiteURL": "https://github.com/gweone/claude-plugins"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "sharpps-plugins",
+  "owner": {
+    "name": "SharpPS"
+  },
+  "metadata": {
+    "description": "SharpPS skills for Cursor, Claude, Codex, Grok, and other agents. Skills are not duplicated \u2014 each host references plugins/*/skills/."
+  },
+  "plugins": [
+    {
+      "name": "sharpps-sitecore",
+      "source": "plugin/sharpps-sitecore",
+      "description": "Sitecore/SXA knowledge for SharpPS solutions: SPE/Shells for publish and Unicorn, SXA search (/sxa/search/*), Feature/Foundation projects, Controller Renderings with custom .cshtml paths, datasource-driven HTML, CorePipeline processors, and idempotent SQL scripts for Database/Database.Tools."
+    },
+    {
+      "name": "sharpps-liferay",
+      "source": "plugin/sharpps-liferay",
+      "description": "Liferay knowledge and workflow tooling for solutions built on the SharpPS framework: Gradle build/deploy, Docker log management, Batch Client Extensions, DDM field validation, Site Initializers, JSP/FTL taglibs, React module scaffolding, management toolbar bulk actions, portlet widget configuration, extending Document Library preview rendering, customizing Data Engine field editors via globalJS Client Extensions, and navigating the Liferay Portal source."
+    },
+    {
+      "name": "sharpps-dotnet",
+      "source": "plugin/sharpps-dotnet",
+      "description": ".NET tooling for SharpPS solutions: decompile Framework and .NET Core/5+ assemblies with ilspycmd, SharpPS.Shells pipelines (register, run, patch), and recurring C# patterns (DI auto-discovery, storage providers, pipeline processors, ASP.NET Core plugin-host bootstrap)."
+    },
+    {
+      "name": "sharpps-work",
+      "source": "plugin/sharpps-work",
+      "description": "Office and documentation tooling for SharpPS: headless screenshots of authenticated apps (including multi-tenant/local domains), OpenXML Word (.docx) via python-docx, codebase-memory-mcp knowledge graphs, and short Findings/Feedback/Conclusion docs."
+    }
+  ]
+}

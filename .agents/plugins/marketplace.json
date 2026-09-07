@@ -7,28 +7,28 @@
       "name": "sharpps-sitecore",
       "source": {
         "source": "local",
-        "path": "./plugins/sharpps-sitecore"
+        "path": "./plugin/sharpps-sitecore"
       }
     },
     {
       "name": "sharpps-liferay",
       "source": {
         "source": "local",
-        "path": "./plugins/sharpps-liferay"
+        "path": "./plugin/sharpps-liferay"
       }
     },
     {
       "name": "sharpps-dotnet",
       "source": {
         "source": "local",
-        "path": "./plugins/sharpps-dotnet"
+        "path": "./plugin/sharpps-dotnet"
       }
     },
     {
       "name": "sharpps-work",
       "source": {
         "source": "local",
-        "path": "./plugins/sharpps-work"
+        "path": "./plugin/sharpps-work"
       }
     }
   ]

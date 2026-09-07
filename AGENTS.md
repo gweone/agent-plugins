@@ -1,25 +1,42 @@
 # SharpPS Agent Skills
 
-This repository contains SharpPS workflow skills shared across AI agents.
+Shared SharpPS workflow skills for Claude Code, Codex, ChatGPT, Cursor, Grok, and other agents.
 
-## Skills
+## Canonical layout (single source of truth)
 
-The canonical skill implementations remain under `plugins/*/skills/*/SKILL.md` for the existing Claude Code marketplace. They are exposed through `.agents/skills/` using relative symlinks so Codex and other Agent Skills-compatible clients can discover the same skills without maintaining a second copy.
+```text
+./plugin/<plugin-name>/skills/<skill-name>/SKILL.md
+```
+
+Examples:
+
+```text
+./plugin/sharpps-sitecore/skills/sxa-search/SKILL.md
+./plugin/sharpps-dotnet/skills/decompile-dll/SKILL.md
+```
+
+There is **no** skill root at `.agents/skills`. That path is not used.
+
+## How each host finds skills
+
+| Host | How |
+|------|-----|
+| Claude Code | `.claude-plugin/marketplace.json` → `source: ./plugin/<name>` |
+| Codex / ChatGPT | `.agents/plugins/marketplace.json` → local `path: ./plugin/<name>`; per-plugin `.codex-plugin` has `skills: "./skills/"` |
+| Cursor | `.cursor-plugin/marketplace.json` + per-plugin `.cursor-plugin` → `skills: "./skills/"` |
+| Grok | per-plugin `.grok-plugin` → `skills: "./skills/"` |
+
+Relative to each plugin package root (`./plugin/<name>`), the skills directory is always **`./skills/`**.
 
 ## Rules
 
-- Treat `SKILL.md` as the source of truth for a workflow.
-- Do not duplicate or fork a skill into a provider-specific implementation unless compatibility requires it.
-- When changing a skill, edit the canonical file under `plugins/*/skills/` and verify the `.agents/skills/` link still resolves.
-- Skills may contain provider-specific references (for example Claude Code behavior); preserve those where they describe real constraints, but do not assume Claude Code is the only execution surface.
-- User instructions take precedence over skill guidance.
+- Edit only files under `./plugin/*/skills/`.
+- Do not copy `SKILL.md` into `.codex-plugin`, `.cursor-plugin`, `.grok-plugin`, or `.agents/`.
+- Provider folders only hold `plugin.json` manifests that **reference** `./skills/`.
+- User instructions override skill guidance.
 
 ## Validation
 
-Run:
-
 ```bash
-./scripts/install-agent-skills.sh --check
+./scripts/install-agent-skills.sh
 ```
-
-This checks that every Claude marketplace skill is exposed in `.agents/skills/` and that every target contains a valid `SKILL.md` with `name` and `description` frontmatter.
