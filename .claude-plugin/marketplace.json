@@ -18,7 +18,7 @@
       },
       "category": "development",
       "source": "./plugin/sharpps-sitecore",
-      "homepage": "https://github.com/gweone/claude-plugins/tree/main/plugin/sharpps-sitecore"
+      "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-sitecore"
     },
     {
       "name": "sharpps-liferay",
@@ -30,7 +30,7 @@
       },
       "category": "development",
       "source": "./plugin/sharpps-liferay",
-      "homepage": "https://github.com/gweone/claude-plugins/tree/main/plugin/sharpps-liferay"
+      "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-liferay"
     },
     {
       "name": "sharpps-dotnet",
@@ -42,7 +42,7 @@
       },
       "category": "development",
       "source": "./plugin/sharpps-dotnet",
-      "homepage": "https://github.com/gweone/claude-plugins/tree/main/plugin/sharpps-dotnet"
+      "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-dotnet"
     },
     {
       "name": "sharpps-work",
@@ -54,7 +54,7 @@
       },
       "category": "development",
       "source": "./plugin/sharpps-work",
-      "homepage": "https://github.com/gweone/claude-plugins/tree/main/plugin/sharpps-work"
+      "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-work"
     }
   ]
 }

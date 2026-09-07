@@ -4,16 +4,16 @@
   "description": "SharpPS framework skills (Sitecore, Liferay, .NET, Work). Install individual plugins; each uses skills under ./plugin/<name>/skills/.",
   "author": {
     "name": "SharpPS",
-    "url": "https://github.com/gweone/claude-plugins"
+    "url": "https://github.com/gweone/agent-plugins"
   },
-  "homepage": "https://github.com/gweone/claude-plugins",
-  "repository": "https://github.com/gweone/claude-plugins",
+  "homepage": "https://github.com/gweone/agent-plugins",
+  "repository": "https://github.com/gweone/agent-plugins",
   "interface": {
     "displayName": "SharpPS Plugins",
     "shortDescription": "Multi-plugin marketplace; skills live under ./plugin/<name>/skills/.",
     "longDescription": "Canonical skills are only under ./plugin/<name>/skills/. Per-plugin .codex-plugin manifests set skills to './skills/'. Do not use .agents/skills as a skill root.",
     "developerName": "SharpPS",
     "category": "Development",
-    "websiteURL": "https://github.com/gweone/claude-plugins"
+    "websiteURL": "https://github.com/gweone/agent-plugins"
   }
 }

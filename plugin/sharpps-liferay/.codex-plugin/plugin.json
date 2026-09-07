@@ -4,10 +4,10 @@
   "description": "Liferay knowledge and workflow tooling for solutions built on the SharpPS framework: Gradle build/deploy, Docker log management, Batch Client Extensions, DDM field validation, Site Initializers, JSP/FTL taglibs, React module scaffolding, management toolbar bulk actions, portlet widget configuration, extending Document Library preview rendering, customizing Data Engine field editors via globalJS Client Extensions, and navigating the Liferay Portal source.",
   "author": {
     "name": "SharpPS",
-    "url": "https://github.com/gweone/claude-plugins"
+    "url": "https://github.com/gweone/agent-plugins"
   },
-  "homepage": "https://github.com/gweone/claude-plugins/tree/main/plugin/sharpps-liferay",
-  "repository": "https://github.com/gweone/claude-plugins",
+  "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-liferay",
+  "repository": "https://github.com/gweone/agent-plugins",
   "skills": "./skills/",
   "interface": {
     "displayName": "SharpPS for Liferay",
@@ -15,6 +15,6 @@
     "longDescription": "Liferay knowledge and workflow tooling for solutions built on the SharpPS framework: Gradle build/deploy, Docker log management, Batch Client Extensions, DDM field validation, Site Initializers, JSP/FTL taglibs, React module scaffolding, management toolbar bulk actions, portlet widget configuration, extending Document Library preview rendering, customizing Data Engine field editors via globalJS Client Extensions, and navigating the Liferay Portal source.",
     "developerName": "SharpPS",
     "category": "Development",
-    "websiteURL": "https://github.com/gweone/claude-plugins"
+    "websiteURL": "https://github.com/gweone/agent-plugins"
   }
 }

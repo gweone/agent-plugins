@@ -1,6 +1,6 @@
-# claude-plugins
+# agent-plugins
 
-A Claude Code plugin marketplace for SharpPS framework tooling and knowledge.
+A multi-agent plugin marketplace (Claude Code, Codex/ChatGPT, Cursor, Grok) for SharpPS framework tooling and knowledge.
 
 ## Structure
 
@@ -11,7 +11,7 @@ A Claude Code plugin marketplace for SharpPS framework tooling and knowledge.
 Add this marketplace, then install a plugin from it:
 
 ```
-/plugin marketplace add gweone/claude-plugins
+/plugin marketplace add gweone/agent-plugins
 /plugin install sharpps-sitecore@sharpps-plugins
 /plugin install sharpps-liferay@sharpps-plugins
 /plugin install sharpps-dotnet@sharpps-plugins
@@ -31,7 +31,7 @@ or browse for the plugin in `/plugin > Discover`.
 
 ## Plugin structure
 
-Each plugin follows the standard Claude Code plugin layout:
+Each plugin follows the standard Claude Code plugin layout as its canonical source — every other host (Codex, Cursor, Grok) references the same `skills/` tree rather than duplicating it:
 
 ```
 plugin-name/
@@ -69,7 +69,7 @@ Each host package only references that tree:
 
 | Host | Entry |
 |------|--------|
-| Claude Code | `/plugin marketplace add gweone/claude-plugins` |
+| Claude Code | `/plugin marketplace add gweone/agent-plugins` |
 | Codex / ChatGPT | `.agents/plugins/marketplace.json` (`path: ./plugin/<name>`) |
 | Cursor | `.cursor-plugin/marketplace.json` |
 | Grok | per-plugin `.grok-plugin/plugin.json` |

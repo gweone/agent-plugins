@@ -4,10 +4,10 @@
   "description": ".NET tooling for SharpPS solutions: decompile Framework and .NET Core/5+ assemblies with ilspycmd, SharpPS.Shells pipelines (register, run, patch), and recurring C# patterns (DI auto-discovery, storage providers, pipeline processors, ASP.NET Core plugin-host bootstrap).",
   "author": {
     "name": "SharpPS",
-    "url": "https://github.com/gweone/claude-plugins"
+    "url": "https://github.com/gweone/agent-plugins"
   },
-  "homepage": "https://github.com/gweone/claude-plugins/tree/main/plugin/sharpps-dotnet",
-  "repository": "https://github.com/gweone/claude-plugins",
+  "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-dotnet",
+  "repository": "https://github.com/gweone/agent-plugins",
   "skills": "./skills/",
   "interface": {
     "displayName": "SharpPS for .NET",
@@ -15,6 +15,6 @@
     "longDescription": ".NET tooling for SharpPS solutions: decompile Framework and .NET Core/5+ assemblies with ilspycmd, SharpPS.Shells pipelines (register, run, patch), and recurring C# patterns (DI auto-discovery, storage providers, pipeline processors, ASP.NET Core plugin-host bootstrap).",
     "developerName": "SharpPS",
     "category": "Development",
-    "websiteURL": "https://github.com/gweone/claude-plugins"
+    "websiteURL": "https://github.com/gweone/agent-plugins"
   }
 }

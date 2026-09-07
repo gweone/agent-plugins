@@ -2,7 +2,7 @@
   "name": "sharpps-liferay",
   "version": "1.2.0",
   "description": "Liferay knowledge and workflow tooling for solutions built on the SharpPS framework: Gradle build/deploy, Docker log management, Batch Client Extensions, DDM field validation, Site Initializers, JSP/FTL taglibs, React module scaffolding, management toolbar bulk actions, portlet widget configuration, extending Document Library preview rendering, customizing Data Engine field editors via globalJS Client Extensions, and navigating the Liferay Portal source.",
-  "homepage": "https://github.com/gweone/claude-plugins/tree/main/plugin/sharpps-liferay",
+  "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-liferay",
   "skills": "./skills/",
   "keywords": [
     "sharpps",

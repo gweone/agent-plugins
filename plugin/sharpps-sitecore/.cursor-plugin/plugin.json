@@ -5,7 +5,7 @@
   "author": {
     "name": "SharpPS"
   },
-  "homepage": "https://github.com/gweone/claude-plugins/tree/main/plugin/sharpps-sitecore",
+  "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-sitecore",
   "skills": "./skills/",
   "keywords": [
     "sharpps",
