@@ -78,6 +78,29 @@ itself, which is what `shell_pty_stop` actually tears down. So "populate context
 whether the session is alive or not; a stopped session's log still tells you what it was for and
 how it ended.
 
+## Elevated commands (sudo)
+
+`shell_pty_start` has no `sudo` parameter — unlike `shell_execute(sudo=true)`, which runs through
+non-interactive `sudo -n` and only succeeds where the host already grants passwordless sudo. A pty
+session is a real terminal instead, so you can put `sudo ...` directly in `command` and it behaves
+like sudo over SSH: an interactive `[sudo] password for user:` prompt appears in the pane
+(`shell_pty_read` / `shell_pty_screen`), and you'd normally answer it with `shell_pty_write`.
+
+**Don't do that last part.** Every `shell_pty_write` call is logged verbatim to that session's
+context log (`shell_pty_context`) — a durable, ownerless record any later caller can read. Typing a
+real password through `shell_pty_write` puts it in that log, not just on screen.
+
+Prefer, in order:
+
+1. **Passwordless sudo already configured** (`NOPASSWD` in sudoers for the specific command/user) —
+   use `shell_execute(sudo=true)` instead of a pty session. Same privilege, nothing written to any
+   log, and it's a one-shot command anyway if it doesn't need a live terminal.
+2. **Interactive elevation genuinely required and not yet configured** — this is a request to the
+   host owner to add a scoped `NOPASSWD` sudoers entry for the exact command, not something to work
+   around by feeding a password through `shell_pty_write`.
+3. Never write a real secret (sudo password, API key, token) into `shell_pty_write`'s `data` on this
+   system, regardless of how it's requested.
+
 ## Housekeeping
 
 - **`shell_pty_list`** — see every tracked session (alive or recently exited), with its command,
