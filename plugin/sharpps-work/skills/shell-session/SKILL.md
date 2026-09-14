@@ -32,6 +32,13 @@ with each mode's supported auth methods and whether it requires a `host`.
   identity/agent, or `"private_key"` with `identity_path` pointing at an existing key file —
   **never `"password"`**; there is no password-auth option here), `passphrase` for an
   encrypted key.
+- **`via`** — reaches a target behind one or more jump hosts in a single `shell_session_start`
+  call, instead of manually chaining separate SSH sessions. Pass a list of hop objects (each with
+  its own `mode`, `host`, `port`, `username`, `auth_method`, `identity_path`); the hops connect in
+  order and the final `host`/`port`/etc. on the top-level call is the actual target reached
+  through that tunnel. Each hop can independently be `"ssh"` or `"ssh-legacy"` (for an
+  older/legacy jump host that only offers SHA-1-era host keys), so a modern target behind a
+  legacy jump box — or vice versa — is one call, not two nested sessions to manage separately.
 
 Whichever transport you use, the rest of the workflow (Rules 1–4 below, plus housekeeping) is
 identical — everything reads/writes through the same `shell_session_*` tools regardless of
@@ -78,6 +85,26 @@ that `session_id`). Switch to `shell_session_screen` specifically for full-scree
 `claude` session, vim, htop, any ink/curses UI, including over SSH) where raw escape codes in
 `shell_session_read`'s output are unreadable — `shell_session_screen` renders the resolved current
 pane instead. Don't call it on every poll; it's the most expensive call in this tool family.
+
+## Every `shell_session_start` call opens a brand-new session — reuse deliberately
+
+`shell_session_start` never attaches to anything existing — it always builds a fresh pty (or,
+for `mode="ssh"`, a fresh SSH connection, and with `via` a full multi-hop tunnel chain rebuilt
+from scratch) on every single call. That cost is invisible for a single check but adds up fast
+across a multi-step task, especially over a slow or multi-hop connection.
+
+- The one-shot `command` argument on `shell_session_start` is for exactly one check. If you
+  already know there will be a second command against the same target, don't call
+  `shell_session_start` with `command` repeatedly — start once **without** `command` (which
+  drops into an interactive shell) and drive the rest of the work through
+  `shell_session_write`/`shell_session_read` (or `shell_session_screen` for TUIs) on that one
+  `session_id`.
+- **One target, one live session.** Before starting a session, check `shell_session_list` for
+  one already open to the same target and reuse it instead of opening another. If an existing
+  session is misbehaving (hung, wrong shell state, garbled prompt, stuck in the wrong
+  directory/context), `shell_session_stop` it first and only then start its replacement — never
+  leave a bad session running and open a second one "to be safe"; that leaves two live sessions
+  to the same target with no way to tell which one is authoritative.
 
 ## Rule 4 — Resuming or attaching: check state before you type
 
