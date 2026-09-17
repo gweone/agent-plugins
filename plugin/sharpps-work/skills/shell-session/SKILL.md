@@ -110,12 +110,45 @@ across a multi-step task, especially over a slow or multi-hop connection.
 
 Because sessions have no owner, **always** call `shell_session_list` (or `shell_session_get` for a
 quick single-session status check) and then `shell_session_screen` (or `shell_session_read` for a
-plain line-oriented shell) before you write into a session you didn't just start yourself —
-including resuming your own session from an earlier conversation. There is no context log — a
-session's `command`, `mode`, `workspace`/`host`, `pid`, `alive`, and `age_seconds` fields, plus
-whatever the pane currently shows, are all you have to go on, so read them before typing anything.
-Writing blind into a session you didn't just create risks answering the wrong prompt, repeating a
-step that already happened, or stepping on another caller's in-flight action.
+plain line-oriented shell) **and `shell_session_read_context`** before you write into a session
+you didn't just start yourself — including resuming your own session from an earlier conversation.
+`shell_session_list`'s `has_context` field flags at a glance which sessions have any notes worth
+checking. A session's `command`, `mode`, `workspace`/`host`, `pid`, `alive`, and `age_seconds`
+fields, plus whatever the pane currently shows and whatever context notes exist, are all you have
+to go on, so read all of it before typing anything. Writing blind into a session you didn't just
+create risks answering the wrong prompt, repeating a step that already happened, or stepping on
+another caller's in-flight action.
+
+## Context notes — when to write one, kept compact
+
+`shell_session_write_context` logs a short freeform note against a `session_id`; it's entirely
+optional and persists even after the session itself is stopped. It exists for exactly one
+scenario: a task spans multiple steps or calls, and whoever picks the session back up next
+(possibly you, possibly a different agent, possibly days later) needs to know intent that the pane
+output alone won't show.
+
+**Keep it to one compact line, not a running log** — e.g.
+`"step 3/5 done (deps installed); next: run migration; if stuck, check /var/log/migrate.log"`.
+Not a paragraph, not a copy of stdout. `shell_session_read_context` returns notes most-recent-first
+with a `limit` (default 20) — because of that ordering, a resuming caller only ever needs the
+latest one or two notes to know current state, so default reads to a small `limit` (e.g. 2–3)
+rather than pulling the full history; only pull more if you're specifically investigating what
+happened earlier. Writing one compact line per meaningful step, instead of one long note that gets
+appended to, keeps both the write and the eventual read cheap.
+
+Write a note when, and only when, one of these is true — this is a judgment call, not a checklist
+to run every turn:
+
+- **Right after starting** a session whose purpose won't be obvious from `command`/`workspace`
+  alone (a multi-step task, a long-running job).
+- **Right before a risky or blocking step** (sudo, a restart, a step likely to hang or fail) — so
+  a useful note exists *before* getting stuck, not only in hindsight after.
+- **On a genuine pivot** — task scope changed, a step failed and you're retrying differently, or
+  you're about to stop responding for a while mid-task.
+
+Skip it for routine steps that succeeded as expected, anything already obvious from recent pane
+output, or a session you're about to `shell_session_stop` immediately after (final state was
+reached, not stuck — nothing to hand off).
 
 ## Elevated commands (sudo)
 
@@ -138,13 +171,24 @@ Example workflow:
 ## Housekeeping
 
 - **`shell_session_list`** — see every tracked session (alive or recently exited), with its mode,
-  command, workspace/host, pid, and age, before deciding whether to attach to an existing one or
-  start a new one. Check this before starting a new session for a task that might already have
-  one running.
+  command, workspace/host, pid, age, and `has_context`, before deciding whether to attach to an
+  existing one or start a new one. Check this before starting a new session for a task that might
+  already have one running.
 - **`shell_session_get`** — a quick status snapshot of one session (same shape as
   `shell_session_read` but with no wait) for a fast "is this still alive / what mode is it" check.
+- **`shell_session_write_context`** — log a short, compact note against a session_id (see
+  "Context notes" above for cadence). Persists after the session stops.
+- **`shell_session_read_context`** — read those notes back, most-recent first; default to a small
+  `limit` and check this before writing into any session you didn't just start.
+- **`shell_session_clear_context`** — manually deletes all notes for a session_id. `shell_session_stop`
+  never touches context on its own (context is meant to outlive a stopped session -- that's the whole
+  point of it), so this is the one deliberate way to prune it. Call it when you judge a session's notes
+  are genuinely stale or resolved -- e.g. picking up a workspace and finding old notes for a task that's
+  long done -- not routinely, and not as part of a normal stop. Idempotent: clearing a session with no
+  notes, or one that never existed, is a no-op, not an error.
 - **`shell_session_stop`** — kills the session and frees its resources. Stop sessions you started
-  once the task is genuinely done rather than leaving them running indefinitely.
+  once the task is genuinely done rather than leaving them running indefinitely. Does NOT clear its
+  context notes -- use `shell_session_clear_context` separately if those are no longer needed either.
 - **`shell_session_capabilities`** — lists every registered transport mode and its supported auth
   methods/requirements. Call this to discover valid `mode` values before starting a session.
 - **`shell_claude_sessions_list`** — read-only listing of a project's `claude --resume` picker
@@ -160,7 +204,9 @@ Example workflow:
 3. `shell_session_start(mode="local_pty", command, workspace="<explicit path>")` or
    `shell_session_start(mode="ssh", host="<explicit host>", ...)`.
 4. Drive the task with `shell_session_write` / `shell_session_read` (or `shell_session_screen` for
-   TUIs).
-5. If picking this session back up later or in a different conversation: `shell_session_list` and
-   `shell_session_screen` (and/or `shell_session_read`) **before** the first `shell_session_write`.
+   TUIs), writing a short context note at start, before risky steps, or on a pivot (see "Context
+   notes" above — not on every step).
+5. If picking this session back up later or in a different conversation: `shell_session_list`,
+   `shell_session_read_context` (small `limit`), and `shell_session_screen`/`shell_session_read`
+   **before** the first `shell_session_write`.
 6. `shell_session_stop(session_id)` once the task is genuinely done.
