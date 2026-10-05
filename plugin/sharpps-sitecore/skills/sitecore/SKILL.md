@@ -121,6 +121,48 @@ for a solution's basic Sitecore info:
 - It's marked `Exclude="true"` in `solutionitems.vstemplate`, so it's written
   to disk but not shown as a visible Solution Explorer node.
 
+### SPE credentials: resolve from SharpPS.config before connecting
+
+The solution-root `SharpPS.config` is optional for SPE authentication. If
+the file does not exist, use the cmdlet defaults (`sitecore\admin` / `b`)
+unless the user explicitly supplies overrides; do not require creating the
+file or ask for credentials just because it is absent.
+
+When present, `SharpPS.config` can override SPE credentials with
+`<username>` and `<password>` elements directly under `<configuration>`.
+Resolve each value independently: an explicit user-supplied override takes
+precedence, then a populated config element, then the cmdlet default
+(`sitecore\admin` for SPE username, `b` for password). A config containing
+only `<password>` therefore overrides the password while keeping the
+default username. Do not try default credentials first when configured
+values are available, or ask for credentials already present in this file.
+
+For direct SPE calls, read the config and pass the resolved values explicitly;
+do not assume `New-SPESession` reads `SharpPS.config` itself. This example
+uses config values with defaults; apply any explicit user override afterward:
+
+```powershell
+$Username = 'sitecore\admin'
+$Password = 'b'
+$configPath = Join-Path $SolutionPath 'SharpPS.config'
+if (Test-Path -LiteralPath $configPath) {
+    [xml]$solutionConfig = Get-Content -LiteralPath $configPath -Raw
+    if (-not [string]::IsNullOrWhiteSpace([string]$solutionConfig.configuration.username)) {
+        $Username = [string]$solutionConfig.configuration.username
+    }
+    if (-not [string]::IsNullOrWhiteSpace([string]$solutionConfig.configuration.password)) {
+        $Password = [string]$solutionConfig.configuration.password
+    }
+}
+# Apply the certificate-trust setup below in this same process if needed.
+$speSession = New-SPESession -Url $Url -Username $Username -Password $Password
+```
+
+Preserve configured values as written, including password whitespace; do
+not print credentials or copy actual values into scripts, documentation,
+or permission entries. If authentication fails with the resolved credentials,
+ask for corrected values rather than retrying with defaults.
+
 ### Pipelines resolve it by default - no need to pass -Args
 
 `Register-Pipeline` sorts each pipeline folder's scripts alphabetically
@@ -222,7 +264,8 @@ triggers, does not pick up Unicorn-synced items on its own).
 - Tenant (`{site-folder}`) and Site (`{sxa-site}`) - never assume there's
   only one
 - Feature name and Rendering name the template/rendering/datasource belong to
-- Sitecore credentials, if the `admin`/`b` default turns out not to work
+- Sitecore credentials, only if authentication fails after resolving explicit
+  overrides, `SharpPS.config` values, and defaults as described above
 - Confirm SPE Remoting is reachable (`New-SPESession` succeeds) before
   planning further - if it fails outright (not a credentials problem), that's
   a `Register-SPE` prerequisite issue, not something to work around
@@ -276,7 +319,9 @@ creating items** - don't guess a name or assume there's only one.
     -ConnectionUri $Url`) opens a **remote PowerShell session** into the
     instance, letting you run arbitrary Sitecore PowerShell (`New-Item`,
     etc.) against the content tree remotely. Defaults to
-    `sitecore\admin`/`b` if `-Username`/`-Password` aren't passed.
+    `sitecore\admin`/`b` if `-Username`/`-Password` aren't passed. Resolve
+    credentials from `SharpPS.config` first (see above), then pass them
+    explicitly so configured values override these defaults.
   - **`-Password` here is a plain `[string]`, not a `SecureString`** -
     unlike `New-SitecoreSession` above (whose `-Password` *is* a
     `SecureString`, requiring `ConvertTo-SecureString` first). Pass the
@@ -286,9 +331,8 @@ creating items** - don't guess a name or assume there's only one.
     `System.Security.SecureString`, so the remoting endpoint receives that
     literal text instead of the password and authentication fails silently
     with no obviously-related error.
-  - If the default credentials fail (e.g. the instance's admin password was
-    changed), ask the user for the actual credentials rather than retrying
-    the default or giving up on item creation entirely.
+  - If the resolved credentials fail, ask the user for corrected credentials
+    rather than retrying defaults or giving up on item creation entirely.
   - SPE Remoting must already be installed and enabled on the target
     instance for `New-SPESession` to work - `Register-SPE -SitecorePath
     <webroot>` installs the SPE Minimal + Remoting packages and flips the
@@ -338,6 +382,7 @@ System template IDs below (Template/Template Section/Template Field) are
 Sitecore-standard, not solution-specific:
 
 ```powershell
+# $Username/$Password are resolved from overrides/config/defaults as above.
 $speSession = New-SPESession -Url $Url -Username $Username -Password $Password
 
 Invoke-RemoteScript -Session $speSession -ScriptBlock {

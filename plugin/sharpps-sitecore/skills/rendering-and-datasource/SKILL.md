@@ -71,8 +71,12 @@ creating anything (see "Approval gate" below):**
 
 **Execution (only after approval) - six parts, in this order:**
 
-1. **Connect.** Try `New-SPESession` against the target instance with its
-   default credentials first (per the `sitecore` skill). If that fails,
+1. **Connect.** Resolve credentials from explicit user overrides, then the
+   solution-root `SharpPS.config`'s `username`/`password` elements, using
+   defaults when the file is absent or individual values are missing or
+   blank (per the `sitecore` skill). `SharpPS.config` is optional for this
+   connection; do not require creating it.
+   Pass those values to `New-SPESession` against the target instance. If that fails,
    don't retry blindly or give up silently - stop and ask the user to pick
    one:
    - supply the actual credentials (or a different URL, if the default one
@@ -84,7 +88,7 @@ creating anything (see "Approval gate" below):**
      eventually synced, unlike the live-creation path below.
    Only proceed past this point once one of those is settled - don't
    silently fall back to hand-authoring just because the default
-   credentials didn't work on the first try.
+   resolved credentials didn't work on the first try.
 2. **Apply the creation script via SPE.** Create the template/sections/
    fields, the `__Standard Values` item (populated exactly as approved -
    Shared defaults once, a language version per supported language for
