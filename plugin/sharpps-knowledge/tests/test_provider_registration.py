@@ -56,45 +56,40 @@ class ProviderRegistrationTests(unittest.TestCase):
                                 capture_output=True, env=env, timeout=3, check=True)
         self.assertEqual(set(json.loads(result.stdout)), {"systemMessage"})
 
-    def test_cursor_explicit_readonly_wrappers_share_roles_and_references(self):
+    def test_cursor_explicit_readonly_self_contained_roles(self):
         manifest = self.manifest("cursor")
-        expected = ["./agents/cursor/knowledge-extractor.md",
-                    "./agents/cursor/knowledge-reviewer.md"]
+        expected = ["./agents/cursor-knowledge-extractor.md",
+                    "./agents/cursor-knowledge-reviewer.md"]
         self.assertEqual(manifest["agents"], expected)
         self.assertNotIn("hooks", manifest)
-        for relative in expected:
+        for relative, role in zip(expected, ("extractor", "reviewer")):
             path = BASE / relative
+            self.assertTrue(path.is_file())
+            self.assertEqual(path.parent, BASE / "agents")
             text = path.read_text()
             frontmatter = text.split("---", 2)[1]
             self.assertRegex(frontmatter, r"(?m)^name: knowledge-(extractor|reviewer)$")
             self.assertRegex(frontmatter, r"(?m)^description: .+$")
             self.assertRegex(frontmatter, r"(?m)^readonly: true$")
             self.assertNotRegex(frontmatter, r"(?m)^tools:")
-            role = "agents/" + path.name
-            self.assertIn(role, text)
-            self.assertTrue((BASE / role).is_file())
-            self.assertIn("references/protocol.md", text)
-            self.assertTrue((BASE / "references/protocol.md").is_file())
+            shared = (BASE / f"agents/knowledge-{role}.md").read_text()
+            self.assertEqual(text.split("---", 2)[2], shared.split("---", 2)[2])
+            self.assertIn("no external reference Reads are required", text)
             self.assertIn("parent", text)
             self.assertIn("Never", text)
-        reviewer = (BASE / expected[1]).read_text()
-        self.assertIn("references/review-rubric.md", reviewer)
-
-    def test_cursor_wrappers_are_tracked_source_files(self):
-        root = BASE.parents[1]
-        paths = ["plugin/sharpps-knowledge/" + name.removeprefix("./")
-                 for name in self.manifest("cursor")["agents"]]
-        result = subprocess.run(["git", "-C", str(root), "ls-files", "--error-unmatch",
-                                 "--", *paths], capture_output=True, text=True,
-                                timeout=5, check=True)
-        self.assertEqual(set(result.stdout.splitlines()), set(paths))
+            # Compatibility files are preserved, but never registered.
+            legacy = BASE / f"agents/cursor/knowledge-{role}.md"
+            self.assertTrue(legacy.is_file())
+            self.assertNotIn("./" + legacy.relative_to(BASE).as_posix(), expected)
 
     @unittest.skipUnless(shutil.which("zip") and shutil.which("python3"),
                          "packaging script requires zip and python3")
-    def test_real_package_contains_manifest_targets_and_nested_cursor_files(self):
+    def test_real_package_contains_manifest_targets_and_flattened_cursor_files(self):
         # Execute the unchanged script only in a disposable repository-shaped fixture.
         # This exercises ZIP contents, not host installation, syncing or model behavior.
         root = BASE.parents[1]
+        if not (root / "scripts/package-plugins.sh").is_file():
+            self.skipTest("optional locally untracked packaging script is absent")
         with tempfile.TemporaryDirectory() as temporary:
             fixture = Path(temporary)
             (fixture / "scripts").mkdir()
@@ -141,17 +136,19 @@ class ProviderRegistrationTests(unittest.TestCase):
                     self.assertTrue(skill_files)
                     for path in skill_files:
                         require_file(path.relative_to(source).as_posix())
-                for relative in ("agents/cursor/knowledge-reviewer.md",
+                for relative in ("agents/cursor-knowledge-reviewer.md",
+                                 "agents/cursor-knowledge-extractor.md",
+                                 "agents/cursor/knowledge-reviewer.md",
                                  "agents/cursor/knowledge-extractor.md",
                                  "agents/knowledge-reviewer.md", "agents/knowledge-extractor.md",
                                  "references/protocol.md", "references/review-rubric.md",
                                  "references/backend-contract.md", "hooks/context.py"):
                     require_file(relative)
-                # Prove this assertion detects a missing nested file, rather than
+                # Prove this assertion detects a missing flattened target, rather than
                 # merely accepting the manifest's mention of that path.
-                names.remove("sharpps-knowledge/agents/cursor/knowledge-reviewer.md")
+                names.remove("sharpps-knowledge/agents/cursor-knowledge-reviewer.md")
                 with self.assertRaises(AssertionError):
-                    require_file("agents/cursor/knowledge-reviewer.md")
+                    require_file("agents/cursor-knowledge-reviewer.md")
 
     def test_unverified_or_documentation_only_manifests_do_not_claim_native_parity(self):
         for provider in ("grok", "opencode"):

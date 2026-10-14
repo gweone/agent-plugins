@@ -1,6 +1,6 @@
 {
   "name": "sharpps-knowledge",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Evidence-backed Knowledge MCP retrieval, draft extraction and separately guarded review using already host-exposed tools.",
   "author": {
     "name": "SharpPS"

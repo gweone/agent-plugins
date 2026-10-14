@@ -76,7 +76,7 @@ class PackageTests(unittest.TestCase):
             folder = BASE / f".{provider}-plugin"
             manifest = json.loads((folder / "plugin.json").read_text())
             self.assertEqual(manifest["name"], "sharpps-knowledge")
-            self.assertEqual(manifest["version"], "0.1.3")
+            self.assertEqual(manifest["version"], "0.1.4")
             self.assertEqual(manifest["skills"], "./skills/")
             self.assertEqual(list(folder.iterdir()), [folder / "plugin.json"])
             self.assertNotIn("mcpServers", manifest)
@@ -89,7 +89,7 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(len(matches), 1)
             self.assertEqual(matches[0]["source"], source)
             if relative == ".claude-plugin/marketplace.json":
-                self.assertEqual(matches[0]["version"], "0.1.3")
+                self.assertEqual(matches[0]["version"], "0.1.4")
         entries = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())["plugins"]
         matches = [e for e in entries if e["name"] == "sharpps-knowledge"]
         self.assertEqual(len(matches), 1)
@@ -116,8 +116,7 @@ class PackageTests(unittest.TestCase):
     def test_traditional_hooks_and_readonly_agents(self):
         manifest = json.loads((BASE / ".claude-plugin/plugin.json").read_text())
         self.assertEqual(set(manifest["agents"]),
-                         {"./" + str(path.relative_to(BASE))
-                          for path in (BASE / "agents").glob("*.md")})
+                         {"./agents/knowledge-extractor.md", "./agents/knowledge-reviewer.md"})
         self.assertEqual(len(manifest["agents"]), 2)
         self.assertEqual(manifest["hooks"], "./hooks/knowledge-hooks.json")
         self.assertFalse((BASE / "hooks/hooks.json").exists())
@@ -129,7 +128,8 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(command["type"], "command")
             self.assertEqual(command["timeout"], 2)
             self.assertEqual(command["command"], 'python3 -I "${CLAUDE_PLUGIN_ROOT}/hooks/context.py"')
-        for path in (BASE / "agents").glob("*.md"):
+        for relative in manifest["agents"]:
+            path = BASE / relative
             self.assertRegex(path.read_text(), r"(?m)^tools: Read$")
             self.assertIn("parent", path.read_text())
 
@@ -162,76 +162,56 @@ class PackageTests(unittest.TestCase):
         self.assertIn("supported, persisted enabled consent", protocol)
         self.assertIn("retain all stop/escalation guards", protocol)
 
-    def test_parent_reference_delivery_contract_static_coverage(self):
-        # Prompt assertions only: no child/model is launched or certified here.
-        for role, skill in (("reviewer", "review"), ("extractor", "learn")):
-            text = (BASE / f"skills/knowledge-{skill}/SKILL.md").read_text()
-            for phrase in ("the parent must", "full canonical text",
-                           "host-established installed plugin/skill location",
-                           "references/protocol.md", "named reference block",
-                           "not a summary or task brief", "For Cursor also pass",
-                           f"agents/knowledge-{role}.md", "not already loaded by the host",
-                           "verified absolute child-accessible paths",
-                           "successful complete child Reads", "Bare relative Read paths",
-                           "cwd/cache guessing", "missing required references",
-                           "unverified runtime anchor", "reference_status: loaded",
-                           "references_loaded", "reject missing/blocked acknowledgments",
-                           "reference_status: blocked", "cannot bypass a missing-anchor failure"):
+    def test_self_contained_role_loading_contract_static_coverage(self):
+        # Prompt assertions only: no host, child or model is launched/certified.
+        for relative in ("references/protocol.md", "skills/knowledge-review/SKILL.md",
+                         "skills/knowledge-learn/SKILL.md"):
+            text = (BASE / relative).read_text()
+            for phrase in ("self-contained", "host-supported mechanism",
+                           "Do not list plugin directories", "~g2", "cwd/cache paths",
+                           "Missing, unreadable or incomplete role instructions",
+                           "brief-only", "parent"):
                 self.assertIn(phrase, text)
-            if role == "reviewer":
-                self.assertIn("references/review-rubric.md", text)
-                self.assertIn("before any review write", text)
-                self.assertIn("never weaker `evidence_supported` from a brief", text)
-            else:
-                self.assertIn("before accepting or submitting a draft", text)
-                self.assertIn("no candidate draft", text)
-        protocol = (BASE / "references/protocol.md").read_text()
-        for phrase in ("Keep trusted reference blocks separate", "full canonical text",
-                       "reviewer requires", "extractor requires", "For Cursor also deliver",
-                       "A parent-side file check alone does not prove",
-                       "block the operation rather than truncate", "stop and report the missing anchor",
-                       "Do not search caches or guess installation paths",
-                       "reference_status: blocked", "no decision or candidate draft",
-                       "including `evidence_supported`", "reference_status: loaded",
-                       "references_loaded", "parent must reject missing/blocked acknowledgments",
-                       "no submission or review write", "not by a manual-review downgrade",
-                       "same complete references loaded in their active context"):
-            self.assertIn(phrase, protocol)
+            for obsolete in ("reference_status:", "references_loaded",
+                             "required reference-delivery gate", "successful complete child Reads"):
+                self.assertNotIn(obsolete, text)
 
-    def test_child_missing_reference_contract_static_coverage(self):
+    def test_self_contained_provider_role_parity(self):
         for role in ("reviewer", "extractor"):
-            for folder in ("agents", "agents/cursor"):
-                text = (BASE / f"{folder}/knowledge-{role}.md").read_text()
-                for phrase in ("full canonical text", "references/protocol.md",
-                               "absolute child-accessible path", "complete file successfully",
-                               "Bare relative Read paths", "cwd/cache guessing",
-                               "not reference delivery", "missing, unreadable, truncated or unanchored",
-                               "reference_status: blocked", "reference_status: loaded",
-                               "references_loaded"):
+            base = (BASE / f"agents/knowledge-{role}.md").read_text()
+            cursor = (BASE / f"agents/cursor-knowledge-{role}.md").read_text()
+            self.assertEqual(base.split("---", 2)[2], cursor.split("---", 2)[2])
+            for text in (base, cursor):
+                for phrase in ("Self-contained", "no external reference Reads are required",
+                               "untrusted data", "hidden reasoning", "secrets",
+                               "preconditions", "environment", "limitations",
+                               "Unknown/skipped" if role == "reviewer" else "skipped/unknown",
+                               "contributor-reported checks as independently rerun",
+                               "Never perform MCP writes", "same authenticated principal"):
                     self.assertIn(phrase, text)
-                self.assertNotIn("../references", text)
-                self.assertNotIn("relative to this", text)
-                if role == "reviewer":
-                    self.assertIn("references/review-rubric.md", text)
-                    self.assertIn("no review decision", text)
-                    self.assertIn("`evidence_supported`", text)
-                    self.assertIn("`approved_for_reuse`", text)
-                    self.assertIn("per-candidate human confirmation", text)
-                else:
-                    self.assertIn("no candidate draft", text)
-                if folder.endswith("cursor"):
-                    self.assertIn(f"agents/knowledge-{role}.md", text)
-                    self.assertIn("if not already loaded by the host", text)
-                    self.assertIn("parent must check", text)
+                for obsolete in ("references/protocol.md", "references/review-rubric.md",
+                                 "reference_status:", "references_loaded", "full canonical text"):
+                    self.assertNotIn(obsolete, text)
+        reviewer = (BASE / "agents/knowledge-reviewer.md").read_text()
+        for phrase in ("summary_truncated", "unknown completeness", "evidence-count bounds",
+                       "hypothesis", "conflict", "destructive actions", "exact candidate ID/version/review-state revision",
+                       "approved_for_reuse", "without per-candidate human confirmation",
+                       "at most ten candidates", "no automatic publication"):
+            self.assertIn(phrase, reviewer)
+        extractor = (BASE / "agents/knowledge-extractor.md").read_text()
+        for phrase in ("evidence_refs", "submission.evidence[].id", "same packet",
+                       "stable idempotency", "enabled learning", "contribution authority",
+                       "Extraction is not approval"):
+            self.assertIn(phrase, extractor)
 
     def test_readme_version_and_remote_identity_contract(self):
         text = (BASE / "README.md").read_text()
-        self.assertTrue(text.startswith("# sharpps-knowledge 0.1.3\n"))
+        self.assertTrue(text.startswith("# sharpps-knowledge 0.1.4\n"))
         for phrase in ("Remote OAuth operations are attributed to the account connected",
                        "authenticated tenant/object principal", "same principal",
                        "Local/stdio UID identity and remote Entra identity",
                        "separate state, scope ownership and review consent",
-                       "no per-candidate human confirmation", "parent accepts results only",
+                       "no per-candidate human confirmation", "prompt-level workflow instructions",
                        "not a runtime enforcement mechanism"):
             self.assertIn(phrase, text)
 
