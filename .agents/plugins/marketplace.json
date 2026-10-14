@@ -4,6 +4,10 @@
   "description": "SharpPS framework skills for Sitecore, Liferay, .NET, and general engineering/documentation workflows.",
   "plugins": [
     {
+      "name": "sharpps-knowledge",
+      "source": {"source": "local", "path": "./plugin/sharpps-knowledge"}
+    },
+    {
       "name": "sharpps-sitecore",
       "source": {
         "source": "local",

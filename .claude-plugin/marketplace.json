@@ -9,6 +9,14 @@
   },
   "plugins": [
     {
+      "name": "sharpps-knowledge",
+      "description": "Evidence-backed Knowledge MCP retrieval, learning and guarded separate review using host-exposed tools; no bundled MCP.",
+      "version": "0.1.0",
+      "author": {"name": "SharpPS"},
+      "category": "development",
+      "source": "./plugin/sharpps-knowledge"
+    },
+    {
       "name": "sharpps-sitecore",
       "displayName": "SharpPS for Sitecore",
       "description": "Sitecore/SXA knowledge for SharpPS solutions: SPE/Shells for publish and Unicorn, SXA search (/sxa/search/*), Feature/Foundation projects, Controller Renderings with custom .cshtml paths, datasource-driven HTML, CorePipeline processors, and idempotent SQL scripts for Database/Database.Tools.",

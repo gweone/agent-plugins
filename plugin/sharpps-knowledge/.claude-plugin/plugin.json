@@ -1,0 +1,15 @@
+{
+  "name": "sharpps-knowledge",
+  "version": "0.1.0",
+  "description": "Evidence-backed Knowledge MCP retrieval, draft extraction and separately guarded review using already host-exposed tools.",
+  "author": {
+    "name": "SharpPS"
+  },
+  "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-knowledge",
+  "skills": "./skills/",
+  "agents": [
+    "./agents/knowledge-extractor.md",
+    "./agents/knowledge-reviewer.md"
+  ],
+  "hooks": "./hooks/knowledge-hooks.json"
+}
