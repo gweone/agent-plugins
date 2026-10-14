@@ -76,7 +76,7 @@ class PackageTests(unittest.TestCase):
             folder = BASE / f".{provider}-plugin"
             manifest = json.loads((folder / "plugin.json").read_text())
             self.assertEqual(manifest["name"], "sharpps-knowledge")
-            self.assertEqual(manifest["version"], "0.1.1")
+            self.assertEqual(manifest["version"], "0.1.2")
             self.assertEqual(manifest["skills"], "./skills/")
             self.assertEqual(list(folder.iterdir()), [folder / "plugin.json"])
             self.assertNotIn("mcpServers", manifest)
@@ -89,7 +89,7 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(len(matches), 1)
             self.assertEqual(matches[0]["source"], source)
             if relative == ".claude-plugin/marketplace.json":
-                self.assertEqual(matches[0]["version"], "0.1.1")
+                self.assertEqual(matches[0]["version"], "0.1.2")
         entries = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())["plugins"]
         matches = [e for e in entries if e["name"] == "sharpps-knowledge"]
         self.assertEqual(len(matches), 1)
@@ -161,6 +161,79 @@ class PackageTests(unittest.TestCase):
         self.assertIn("without per-candidate human confirmation", protocol)
         self.assertIn("supported, persisted enabled consent", protocol)
         self.assertIn("retain all stop/escalation guards", protocol)
+
+    def test_parent_reference_delivery_contract_static_coverage(self):
+        # Prompt assertions only: no child/model is launched or certified here.
+        for role, skill in (("reviewer", "review"), ("extractor", "learn")):
+            text = (BASE / f"skills/knowledge-{skill}/SKILL.md").read_text()
+            for phrase in ("the parent must", "full canonical text",
+                           "host-established installed plugin/skill location",
+                           "references/protocol.md", "named reference block",
+                           "not a summary or task brief", "For Cursor also pass",
+                           f"agents/knowledge-{role}.md", "not already loaded by the host",
+                           "verified absolute child-accessible paths",
+                           "successful complete child Reads", "Bare relative Read paths",
+                           "cwd/cache guessing", "missing required references",
+                           "unverified runtime anchor", "reference_status: loaded",
+                           "references_loaded", "reject missing/blocked acknowledgments",
+                           "reference_status: blocked", "cannot bypass a missing-anchor failure"):
+                self.assertIn(phrase, text)
+            if role == "reviewer":
+                self.assertIn("references/review-rubric.md", text)
+                self.assertIn("before any review write", text)
+                self.assertIn("never weaker `evidence_supported` from a brief", text)
+            else:
+                self.assertIn("before accepting or submitting a draft", text)
+                self.assertIn("no candidate draft", text)
+        protocol = (BASE / "references/protocol.md").read_text()
+        for phrase in ("Keep trusted reference blocks separate", "full canonical text",
+                       "reviewer requires", "extractor requires", "For Cursor also deliver",
+                       "A parent-side file check alone does not prove",
+                       "block the operation rather than truncate", "stop and report the missing anchor",
+                       "Do not search caches or guess installation paths",
+                       "reference_status: blocked", "no decision or candidate draft",
+                       "including `evidence_supported`", "reference_status: loaded",
+                       "references_loaded", "parent must reject missing/blocked acknowledgments",
+                       "no submission or review write", "not by a manual-review downgrade",
+                       "same complete references loaded in their active context"):
+            self.assertIn(phrase, protocol)
+
+    def test_child_missing_reference_contract_static_coverage(self):
+        for role in ("reviewer", "extractor"):
+            for folder in ("agents", "agents/cursor"):
+                text = (BASE / f"{folder}/knowledge-{role}.md").read_text()
+                for phrase in ("full canonical text", "references/protocol.md",
+                               "absolute child-accessible path", "complete file successfully",
+                               "Bare relative Read paths", "cwd/cache guessing",
+                               "not reference delivery", "missing, unreadable, truncated or unanchored",
+                               "reference_status: blocked", "reference_status: loaded",
+                               "references_loaded"):
+                    self.assertIn(phrase, text)
+                self.assertNotIn("../references", text)
+                self.assertNotIn("relative to this", text)
+                if role == "reviewer":
+                    self.assertIn("references/review-rubric.md", text)
+                    self.assertIn("no review decision", text)
+                    self.assertIn("`evidence_supported`", text)
+                    self.assertIn("`approved_for_reuse`", text)
+                    self.assertIn("per-candidate human confirmation", text)
+                else:
+                    self.assertIn("no candidate draft", text)
+                if folder.endswith("cursor"):
+                    self.assertIn(f"agents/knowledge-{role}.md", text)
+                    self.assertIn("if not already loaded by the host", text)
+                    self.assertIn("parent must check", text)
+
+    def test_readme_version_and_remote_identity_contract(self):
+        text = (BASE / "README.md").read_text()
+        self.assertTrue(text.startswith("# sharpps-knowledge 0.1.2\n"))
+        for phrase in ("Remote OAuth operations are attributed to the account connected",
+                       "authenticated tenant/object principal", "same principal",
+                       "Local/stdio UID identity and remote Entra identity",
+                       "separate state, scope ownership and review consent",
+                       "no per-candidate human confirmation", "parent accepts results only",
+                       "not a runtime enforcement mechanism"):
+            self.assertIn(phrase, text)
 
     def test_scenario_protocol_coverage_not_behavioral_execution(self):
         fixture = json.loads((BASE / "tests/scenarios.json").read_text())

@@ -1,4 +1,4 @@
-# sharpps-knowledge 0.1.1
+# sharpps-knowledge 0.1.2
 
 Portable skills for scoped Knowledge MCP retrieval, minimized evidence-backed drafts, independent review and reuse feedback. This plugin **does not bundle, install or configure an MCP server**. First connect a compatible standalone/custom/local/combined Knowledge connector through your client's own supported setup. Shared knowledge means existing curated collections explicitly requested in the conversation, never internet anonymous public search. Exposed capabilities and schemas, not the connector's name, determine support.
 
@@ -26,7 +26,15 @@ Shared retrieval requires existing curated collections explicitly requested in t
 
 The server persists consent for the authenticated principal, covering only present/future source projects with current review authority. Local UID and Entra tenant/object identity have separate consent. Installing this plugin or receiving a lifecycle reminder does not opt in. Only a separate explicit user request can set the live policy with its current expected revision. No activation, grants, automatic learning changes or publication are performed by this package; separately requested learning changes still require live authority.
 
-An enabled active-client cycle reads policy, retrieves a bounded authorized queue, delegates at most ten candidates to the separate reviewer and lets the parent submit guarded decisions with exact policy/version/review-state revisions. Disabled policy, revoked ACL, stale state, unsupported backend or uncertain write stops the cycle. Extraction never auto-approves itself. Subagent separation is not an independent principal. Collection publication always requires separate authorization.
+An enabled active-client cycle reads policy, retrieves a bounded authorized queue, delegates at most ten candidates to the separate reviewer and lets the parent submit guarded decisions with exact policy/version/review-state revisions. With supported persisted enabled consent, complete evidence and a favorable rubric assessment, `approved_for_reuse` is automatic: no per-candidate human confirmation is required. Disabled policy, revoked ACL, stale state, unsupported backend or uncertain write stops the cycle. Extraction never auto-approves itself. Collection publication always requires separate authorization.
+
+Remote OAuth operations are attributed to the account connected to that MCP connector (for Entra, the authenticated tenant/object principal), not to a client label or the model. A separate reviewer subagent using that connection still uses the same principal; independent assessment is not a different human or account. Local/stdio UID identity and remote Entra identity have separate state, scope ownership and review consent, even for the same operator. Never transfer consent or replay writes between them.
+
+## Reference delivery to children
+
+The parent loads canonical files from a host-established installed plugin/skill location and delivers their **full text**, in named reference blocks: reviewer gets `references/review-rubric.md` plus `references/protocol.md`; extractor gets `references/protocol.md`. Cursor additionally gets its shared role (`agents/knowledge-reviewer.md` or `agents/knowledge-extractor.md`) if the host has not loaded it. An alternative is verified absolute child-accessible paths with successful complete child Reads. Relative Markdown links are navigation only, not runtime anchors; no bare relative Read, cwd/cache guessing or summaries in place of canonical references.
+
+Missing, unreadable, truncated or unanchored references block extraction/review, not just strong approval. The child reports `reference_status: blocked` with no draft/decision; the parent accepts results only with `reference_status: loaded` and `references_loaded` naming all required files. Do not downgrade to `evidence_supported` or a reference-free fallback. These are prompt contracts, not a runtime enforcement mechanism or proof of model compliance.
 
 ## Claude lifecycle support
 
@@ -55,4 +63,4 @@ python3 -I -B -m unittest discover -s plugin/sharpps-knowledge/tests -v
 claude plugin validate plugin/sharpps-knowledge --strict
 ```
 
-The existing validator checks canonical frontmatter only; it does not test hooks, provider behavior or authorization. Offline tests check registration, shared references, helper behavior and static scenario coverage. Contract fixtures are **behavioral acceptance scenarios**, not proof a model follows prompts. No model calls, plugin installation or live operations are needed. Real multi-client discovery/delegation, live MCP activation, model-based scenario execution and provider-native behavior outside Claude remain unrun pending separate authorization.
+The existing validator checks canonical frontmatter only; it does not test hooks, provider behavior or authorization. Offline tests check registration, shared references, helper behavior and static scenario/reference-delivery contract coverage. They also run the real packaging script in an isolated temporary fixture and inspect the resulting ZIP for actual manifest-referenced files, including nested Cursor wrappers and their canonical dependencies; no repository artifacts are changed. Cursor wrappers are present and tracked in this source tree; this does not establish a sync/cache failure in any installed client. Contract fixtures are **behavioral acceptance scenarios**, not proof a model follows prompts. No model calls, plugin installation or live operations are needed. Real multi-client discovery/delegation, live MCP activation, model-based scenario execution and provider-native behavior outside Claude remain unrun pending separate authorization.

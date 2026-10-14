@@ -1,10 +1,13 @@
 """Static provider registration and helper protocol checks, not native runtime tests."""
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import shutil
 import subprocess
 import sys
+import tempfile
 import unittest
+import zipfile
 
 BASE = Path(__file__).resolve().parents[1]
 
@@ -67,15 +70,88 @@ class ProviderRegistrationTests(unittest.TestCase):
             self.assertRegex(frontmatter, r"(?m)^description: .+$")
             self.assertRegex(frontmatter, r"(?m)^readonly: true$")
             self.assertNotRegex(frontmatter, r"(?m)^tools:")
-            role = "../" + path.name
+            role = "agents/" + path.name
             self.assertIn(role, text)
-            self.assertTrue((path.parent / role).is_file())
-            self.assertIn("../../references/protocol.md", text)
-            self.assertTrue((path.parent / "../../references/protocol.md").is_file())
+            self.assertTrue((BASE / role).is_file())
+            self.assertIn("references/protocol.md", text)
+            self.assertTrue((BASE / "references/protocol.md").is_file())
             self.assertIn("parent", text)
             self.assertIn("Never", text)
         reviewer = (BASE / expected[1]).read_text()
-        self.assertIn("../../references/review-rubric.md", reviewer)
+        self.assertIn("references/review-rubric.md", reviewer)
+
+    def test_cursor_wrappers_are_tracked_source_files(self):
+        root = BASE.parents[1]
+        paths = ["plugin/sharpps-knowledge/" + name.removeprefix("./")
+                 for name in self.manifest("cursor")["agents"]]
+        result = subprocess.run(["git", "-C", str(root), "ls-files", "--error-unmatch",
+                                 "--", *paths], capture_output=True, text=True,
+                                timeout=5, check=True)
+        self.assertEqual(set(result.stdout.splitlines()), set(paths))
+
+    @unittest.skipUnless(shutil.which("zip") and shutil.which("python3"),
+                         "packaging script requires zip and python3")
+    def test_real_package_contains_manifest_targets_and_nested_cursor_files(self):
+        # Execute the unchanged script only in a disposable repository-shaped fixture.
+        # This exercises ZIP contents, not host installation, syncing or model behavior.
+        root = BASE.parents[1]
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = Path(temporary)
+            (fixture / "scripts").mkdir()
+            script = fixture / "scripts/package-plugins.sh"
+            shutil.copy2(root / "scripts/package-plugins.sh", script)
+            source = fixture / "plugin/sharpps-knowledge"
+            shutil.copytree(BASE, source,
+                            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+            result = subprocess.run(["bash", str(script)], cwd=fixture,
+                                    env={"PATH": os.defpath}, capture_output=True,
+                                    text=True, timeout=30, check=True)
+            self.assertIn("packaged 1 plugin(s)", result.stdout)
+            version = self.manifest("codex")["version"]
+            archives = list((fixture / "artifacts").glob("*.zip"))
+            self.assertEqual([p.name for p in archives],
+                             [f"sharpps-knowledge-{version}.zip"])
+            with zipfile.ZipFile(archives[0]) as archive:
+                self.assertIsNone(archive.testzip())
+                names = archive.namelist()
+                self.assertEqual(len(names), len(set(names)))
+                self.assertFalse(any("__pycache__" in n or n.endswith(".pyc")
+                                     for n in names))
+
+                def require_file(relative):
+                    path = PurePosixPath(relative)
+                    self.assertFalse(path.is_absolute())
+                    self.assertNotIn("..", path.parts)
+                    member = "sharpps-knowledge/" + path.as_posix()
+                    self.assertIn(member, names)
+                    self.assertFalse(archive.getinfo(member).is_dir())
+                    self.assertEqual(archive.read(member), (source / path).read_bytes())
+
+                for provider in ("claude", "codex", "cursor", "grok", "opencode"):
+                    manifest_path = f".{provider}-plugin/plugin.json"
+                    require_file(manifest_path)
+                    manifest = json.loads(archive.read("sharpps-knowledge/" + manifest_path))
+                    for target in manifest.get("agents", []):
+                        require_file(target)
+                    if "hooks" in manifest:
+                        require_file(manifest["hooks"])
+                    skills = source / manifest["skills"]
+                    self.assertTrue(skills.is_dir())
+                    skill_files = [p for p in skills.rglob("*") if p.is_file()]
+                    self.assertTrue(skill_files)
+                    for path in skill_files:
+                        require_file(path.relative_to(source).as_posix())
+                for relative in ("agents/cursor/knowledge-reviewer.md",
+                                 "agents/cursor/knowledge-extractor.md",
+                                 "agents/knowledge-reviewer.md", "agents/knowledge-extractor.md",
+                                 "references/protocol.md", "references/review-rubric.md",
+                                 "references/backend-contract.md", "hooks/context.py"):
+                    require_file(relative)
+                # Prove this assertion detects a missing nested file, rather than
+                # merely accepting the manifest's mention of that path.
+                names.remove("sharpps-knowledge/agents/cursor/knowledge-reviewer.md")
+                with self.assertRaises(AssertionError):
+                    require_file("agents/cursor/knowledge-reviewer.md")
 
     def test_unverified_or_documentation_only_manifests_do_not_claim_native_parity(self):
         for provider in ("grok", "opencode"):
