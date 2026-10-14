@@ -76,7 +76,7 @@ class PackageTests(unittest.TestCase):
             folder = BASE / f".{provider}-plugin"
             manifest = json.loads((folder / "plugin.json").read_text())
             self.assertEqual(manifest["name"], "sharpps-knowledge")
-            self.assertEqual(manifest["version"], "0.1.2")
+            self.assertEqual(manifest["version"], "0.1.3")
             self.assertEqual(manifest["skills"], "./skills/")
             self.assertEqual(list(folder.iterdir()), [folder / "plugin.json"])
             self.assertNotIn("mcpServers", manifest)
@@ -89,7 +89,7 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(len(matches), 1)
             self.assertEqual(matches[0]["source"], source)
             if relative == ".claude-plugin/marketplace.json":
-                self.assertEqual(matches[0]["version"], "0.1.2")
+                self.assertEqual(matches[0]["version"], "0.1.3")
         entries = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())["plugins"]
         matches = [e for e in entries if e["name"] == "sharpps-knowledge"]
         self.assertEqual(len(matches), 1)
@@ -226,7 +226,7 @@ class PackageTests(unittest.TestCase):
 
     def test_readme_version_and_remote_identity_contract(self):
         text = (BASE / "README.md").read_text()
-        self.assertTrue(text.startswith("# sharpps-knowledge 0.1.2\n"))
+        self.assertTrue(text.startswith("# sharpps-knowledge 0.1.3\n"))
         for phrase in ("Remote OAuth operations are attributed to the account connected",
                        "authenticated tenant/object principal", "same principal",
                        "Local/stdio UID identity and remote Entra identity",
