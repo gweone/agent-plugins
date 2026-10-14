@@ -11,7 +11,7 @@
     {
       "name": "sharpps-knowledge",
       "description": "Evidence-backed Knowledge MCP retrieval, learning and guarded separate review using host-exposed tools; no bundled MCP.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {"name": "SharpPS"},
       "category": "development",
       "source": "./plugin/sharpps-knowledge"

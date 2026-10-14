@@ -76,7 +76,7 @@ class PackageTests(unittest.TestCase):
             folder = BASE / f".{provider}-plugin"
             manifest = json.loads((folder / "plugin.json").read_text())
             self.assertEqual(manifest["name"], "sharpps-knowledge")
-            self.assertEqual(manifest["version"], "0.1.0")
+            self.assertEqual(manifest["version"], "0.1.1")
             self.assertEqual(manifest["skills"], "./skills/")
             self.assertEqual(list(folder.iterdir()), [folder / "plugin.json"])
             self.assertNotIn("mcpServers", manifest)
@@ -88,6 +88,8 @@ class PackageTests(unittest.TestCase):
             matches = [e for e in entries if e["name"] == "sharpps-knowledge"]
             self.assertEqual(len(matches), 1)
             self.assertEqual(matches[0]["source"], source)
+            if relative == ".claude-plugin/marketplace.json":
+                self.assertEqual(matches[0]["version"], "0.1.1")
         entries = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())["plugins"]
         matches = [e for e in entries if e["name"] == "sharpps-knowledge"]
         self.assertEqual(len(matches), 1)
@@ -147,6 +149,18 @@ class PackageTests(unittest.TestCase):
         self.assertIn("approved_for_reuse", contract)
         self.assertIn("evidence_supported", contract)
         self.assertIn("without connector replay", contract)
+
+    def test_automatic_approval_recommendation_static_coverage(self):
+        # Prompt coverage only; this does not execute or certify model decisions.
+        rubric = (BASE / "references/review-rubric.md").read_text()
+        protocol = (BASE / "references/protocol.md").read_text()
+        self.assertIn("You may recommend `approved_for_reuse`", rubric)
+        self.assertIn("Do not perform MCP writes", rubric)
+        self.assertIn("never present contributor-reported checks as independently rerun", rubric)
+        self.assertNotIn("Do not write, enable policy/learning, submit, approve or publish", rubric)
+        self.assertIn("without per-candidate human confirmation", protocol)
+        self.assertIn("supported, persisted enabled consent", protocol)
+        self.assertIn("retain all stop/escalation guards", protocol)
 
     def test_scenario_protocol_coverage_not_behavioral_execution(self):
         fixture = json.loads((BASE / "tests/scenarios.json").read_text())
