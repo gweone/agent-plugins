@@ -4,6 +4,8 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
+import tempfile
 import subprocess
 import sys
 import unittest
@@ -76,7 +78,7 @@ class PackageTests(unittest.TestCase):
             folder = BASE / f".{provider}-plugin"
             manifest = json.loads((folder / "plugin.json").read_text())
             self.assertEqual(manifest["name"], "sharpps-knowledge")
-            self.assertEqual(manifest["version"], "0.1.4")
+            self.assertEqual(manifest["version"], "0.1.5")
             self.assertEqual(manifest["skills"], "./skills/")
             self.assertEqual(list(folder.iterdir()), [folder / "plugin.json"])
             self.assertNotIn("mcpServers", manifest)
@@ -89,7 +91,7 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(len(matches), 1)
             self.assertEqual(matches[0]["source"], source)
             if relative == ".claude-plugin/marketplace.json":
-                self.assertEqual(matches[0]["version"], "0.1.4")
+                self.assertEqual(matches[0]["version"], "0.1.5")
         entries = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())["plugins"]
         matches = [e for e in entries if e["name"] == "sharpps-knowledge"]
         self.assertEqual(len(matches), 1)
@@ -168,10 +170,12 @@ class PackageTests(unittest.TestCase):
                          "skills/knowledge-learn/SKILL.md"):
             text = (BASE / relative).read_text()
             for phrase in ("self-contained", "host-supported mechanism",
-                           "Do not list plugin directories", "~g2", "cwd/cache paths",
-                           "Missing, unreadable or incomplete role instructions",
-                           "brief-only", "parent"):
+                           "~g2", "cwd/cache paths", "brief-only", "parent"):
                 self.assertIn(phrase, text)
+            self.assertRegex(text, r"(?:Do not list plugin directories|never [^\n]*list plugin directories)")
+            self.assertIn("inline", text)
+            self.assertIn("SAME MODEL / SAME CONTEXT" if "knowledge-learn" not in relative
+                          else "same model and context", text)
             for obsolete in ("reference_status:", "references_loaded",
                              "required reference-delivery gate", "successful complete child Reads"):
                 self.assertNotIn(obsolete, text)
@@ -206,7 +210,7 @@ class PackageTests(unittest.TestCase):
 
     def test_readme_version_and_remote_identity_contract(self):
         text = (BASE / "README.md").read_text()
-        self.assertTrue(text.startswith("# sharpps-knowledge 0.1.4\n"))
+        self.assertTrue(text.startswith("# sharpps-knowledge 0.1.5\n"))
         for phrase in ("Remote OAuth operations are attributed to the account connected",
                        "authenticated tenant/object principal", "same principal",
                        "Local/stdio UID identity and remote Entra identity",
@@ -224,6 +228,101 @@ class PackageTests(unittest.TestCase):
             self.assertTrue(scenario["expected_behavior"])
             for phrase in scenario["protocol_checks"]:
                 self.assertIn(phrase, protocol, scenario["id"])
+
+
+class SkillOnlyDistributionTests(unittest.TestCase):
+    """Static SKILL-text coverage in an agents/reference-free fixture, not model runtime."""
+
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        shutil.copytree(BASE / "skills", self.root / "skills")
+        self.assertFalse((self.root / "agents").exists())
+        self.assertFalse((self.root / "references").exists())
+
+    def skill(self, name):
+        # Read ONLY the distributed SKILL text, never follow explanation links.
+        return (self.root / "skills" / ("knowledge-" + name) / "SKILL.md").read_text()
+
+    def require(self, text, phrases):
+        for phrase in phrases:
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, text)
+
+    def test_all_skills_execute_without_external_loading_prerequisites(self):
+        for name in ("review", "learn", "setup", "retrieve", "status"):
+            text = self.skill(name)
+            self.require(text, ("self-contained", "skill-only hosts", "Claude web",
+                                "optional explanation only", "not loading prerequisites",
+                                "actual", "schemas", "connection identity"))
+            # Detect the old mandatory protocol/role-source blockers, not optional links.
+            self.assertNotRegex(text, r"(?i)read \[.*protocol[^\n]*before acting")
+            self.assertNotRegex(text, r"(?i)(?:must|required to|need to) (?:read|load)[^\n]*(?:agents/|references/)")
+            self.assertNotIn("use the complete compact role text from", text)
+            self.assertNotIn("Missing, unreadable or incomplete role instructions block", text)
+
+    def test_review_parent_guards_are_inline(self):
+        self.require(self.skill("review"), (
+            "host-established connection identity", "exact logical-to-host-tool map/schemas",
+            "Never combine different connections", "Live schemas are authoritative",
+            "deferred tool search", "explicit operator-selected authorized source-project IDs",
+            "Collection visibility is not source-project review authority",
+            "candidate-listing tools", "knowledge_get_review_policy", "knowledge_review_queue",
+            "knowledge_auto_review", "supported, persisted enabled standing consent",
+            "verified caller", "current source-project review authority",
+            "at most ten candidates total per cycle", "max 10 across all pages/projects",
+            "advertised limit is lower", "exact candidate version, review-state revision and policy revision",
+            "Parent alone", "Recheck consent/authority", "revoked/expired/denied ACL",
+            "stale candidate/state/policy", "Re-read queue/state", "application error payloads",
+            "review_input_incomplete", "(409)", "No connector replay", "manual-review downgrade",
+            "uncertain possibly committed", "Never enable consent, learning", "ACL/grants",
+            "publication requires separate explicit authorization", "operator request",
+            "Never use manual review to emulate standing consent", "not runtime enforcement"))
+
+    def test_review_complete_rubric_and_honest_fallback_are_inline(self):
+        self.require(self.skill("review"), (
+            "verified available", "Native agents are optional", "SAME MODEL / SAME CONTEXT",
+            "after extraction has finished", "weaker separation", "not a subagent or independent check",
+            "not a second identity", "distinct evaluative step is mandatory",
+            "Missing native role files do not block", "inline reviewer rubric",
+            "untrusted data", "summary_truncated", "Unknown completeness", "missing references",
+            "advertised evidence-count bounds", "no automatic approval or `evidence_supported`",
+            "Unknown/skipped checks are not passing checks", "failed checks", "hypothesis",
+            "preconditions, environment, specialization and limitations", "secrets", "personal information",
+            "hidden reasoning", "Unsafe/conflicting claims", "destructive actions", "stop/escalate",
+            "approved_for_reuse", "without per-candidate human confirmation", "contributor_reported",
+            "not a blanket", "never present contributor-reported checks as independently rerun",
+            "exact candidate ID/version/review-state revision", "provenance, limitations"))
+
+    def test_learn_extraction_authorization_and_review_boundary_are_inline(self):
+        self.require(self.skill("learn"), (
+            "same model and context", "no external role text is needed", "Native roles are optional",
+            "untrusted data", "Default to a concise reusable draft", "hypothesis",
+            "preconditions, environment, specialization and limitations", "skipped/unknown checks",
+            "contributor_reported", "independently rerun", "evidence_refs", "submission.evidence[].id",
+            "same packet", "secrets", "hidden reasoning", "no draft", "Extraction is not approval",
+            "actual contribution authority", "enabled project learning", "authorization to share",
+            "not enablement or evidence-sharing consent", "defaults OFF", "explicit operator request",
+            "ClientCandidateSubmission", "UTF-8", "10 candidates, 100 evidence items, 256,000",
+            "stable task/submission idempotency key", "changed content needs a new key",
+            "application errors", "no connector replay", "distinct evaluative review step",
+            "if unavailable, leave the candidate pending", "weaker separation",
+            "without per-candidate human confirmation", "exact live policy/version/state and ACL checks"))
+
+    def test_setup_retrieval_status_keep_scope_and_error_guards_inline(self):
+        setup = self.skill("setup")
+        self.require(setup, ("knowledge_resolve_workspace", "workspace_namespace", "machine attestation",
+                            "strict boolean", "4,096 bytes", "128 characters", "authenticated principal",
+                            "learning_enabled", "scope: 'workspace'", "OFF", "older servers",
+                            "no connector replay", "knowledge_workflow", "Explicit", "curated collections"))
+        retrieve = self.skill("retrieve")
+        self.require(retrieve, ("sort: 'recent'", "re-resolve the automatic scope", "advisory findings",
+                               "never global/anonymous", "No namespace/scope failover", "publication"))
+        status = self.skill("status")
+        self.require(status, ("Status is read-only", "knowledge_list_workspaces", "opaque cursor",
+                             "sole separately described write", "actual reuse", "exact selected lesson",
+                             "no connector replay", "learning/policy enablement", "missing scope"))
 
 
 class WorkspaceProtocolTests(unittest.TestCase):
