@@ -78,7 +78,7 @@ class PackageTests(unittest.TestCase):
             folder = BASE / f".{provider}-plugin"
             manifest = json.loads((folder / "plugin.json").read_text())
             self.assertEqual(manifest["name"], "sharpps-knowledge")
-            self.assertEqual(manifest["version"], "0.1.5")
+            self.assertEqual(manifest["version"], "0.1.6")
             self.assertEqual(manifest["skills"], "./skills/")
             self.assertEqual(list(folder.iterdir()), [folder / "plugin.json"])
             self.assertNotIn("mcpServers", manifest)
@@ -91,7 +91,7 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(len(matches), 1)
             self.assertEqual(matches[0]["source"], source)
             if relative == ".claude-plugin/marketplace.json":
-                self.assertEqual(matches[0]["version"], "0.1.5")
+                self.assertEqual(matches[0]["version"], "0.1.6")
         entries = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())["plugins"]
         matches = [e for e in entries if e["name"] == "sharpps-knowledge"]
         self.assertEqual(len(matches), 1)
@@ -210,7 +210,7 @@ class PackageTests(unittest.TestCase):
 
     def test_readme_version_and_remote_identity_contract(self):
         text = (BASE / "README.md").read_text()
-        self.assertTrue(text.startswith("# sharpps-knowledge 0.1.5\n"))
+        self.assertTrue(text.startswith("# sharpps-knowledge 0.1.6\n"))
         for phrase in ("Remote OAuth operations are attributed to the account connected",
                        "authenticated tenant/object principal", "same principal",
                        "Local/stdio UID identity and remote Entra identity",
@@ -223,7 +223,7 @@ class PackageTests(unittest.TestCase):
         fixture = json.loads((BASE / "tests/scenarios.json").read_text())
         self.assertIn("unrun model-behavior", fixture["kind"])
         protocol = (BASE / "references/protocol.md").read_text()
-        self.assertEqual(len({s["id"] for s in fixture["scenarios"]}), 40)
+        self.assertEqual(len({s["id"] for s in fixture["scenarios"]}), 48)
         for scenario in fixture["scenarios"]:
             self.assertTrue(scenario["expected_behavior"])
             for phrase in scenario["protocol_checks"]:
@@ -318,11 +318,70 @@ class SkillOnlyDistributionTests(unittest.TestCase):
                             "no connector replay", "knowledge_workflow", "Explicit", "curated collections"))
         retrieve = self.skill("retrieve")
         self.require(retrieve, ("sort: 'recent'", "re-resolve the automatic scope", "advisory findings",
-                               "never global/anonymous", "No namespace/scope failover", "publication"))
+                               "never anonymous public lookup", "No namespace/scope failover", "publication"))
         status = self.skill("status")
         self.require(status, ("Status is read-only", "knowledge_list_workspaces", "opaque cursor",
                              "sole separately described write", "actual reuse", "exact selected lesson",
                              "no connector replay", "learning/policy enablement", "missing scope"))
+
+
+class GlobalSearchProtocolTests(unittest.TestCase):
+    """Static guard coverage only, never backend calls or model certification."""
+
+    def test_global_opt_in_and_live_schema_guard_across_documentation(self):
+        for relative in ("skills/knowledge-retrieve/SKILL.md", "skills/knowledge-setup/SKILL.md",
+                         "references/protocol.md", "references/capabilities.md", "README.md"):
+            with self.subTest(relative=relative):
+                text = (BASE / relative).read_text()
+                for phrase in ("explicit conversational request from the user to search all accessible knowledge",
+                               "all_accessible", "boolean", "default false", "mutually exclusive",
+                               "project_id", "collection_ids", "actual live", "pinned connection",
+                               "owned", "exact READ", "current published nonprivate approved knowledge",
+                               "not anonymous/public data", "enumeration", "workspace creation",
+                               "no source project is selected", "unavailable", "failover"):
+                    self.assertIn(phrase, text)
+
+    def test_global_schema_guard_and_provenance_are_skill_only(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = Path(temporary)
+            shutil.copytree(BASE / "skills", fixture / "skills")
+            self.assertFalse((fixture / "agents").exists())
+            self.assertFalse((fixture / "references").exists())
+            text = (fixture / "skills/knowledge-retrieve/SKILL.md").read_text()
+            for phrase in ("check before workspace setup", "resolving its SearchRequest reference",
+                           "Names, backend version labels", "strict JSON boolean `all_accessible: true`",
+                           "omit `project_id` and `collection_ids` entirely", "ask which mutually exclusive mode",
+                           "do not enumerate projects, scopes, namespaces or collections",
+                           "No host path/namespace is needed", "no source-project workflow is required",
+                           "automatically create a workspace", "same pinned connection",
+                           "explicitly report all-accessible search unavailable and stop",
+                           "never emulate", "unscoped legacy requests", "Denial is not older-server absence",
+                           "omit `all_accessible` (default false)", "does not replace the pinned workspace scope",
+                           "workflow/capability settings", "application errors/receipts",
+                           "returned `collection_ids` provenance", "actual get/feedback schema",
+                           "never infer source-project authority", "drop collection provenance to bypass access",
+                           "Feedback is only for actual reuse", "exact selected lesson ID/version",
+                           "does not change grants, collection creation/publication", "standing review"):
+                self.assertIn(phrase, text)
+            self.assertLess(text.index("## Explicit all-accessible"), text.index("## Ordinary scoped"))
+            self.assertNotRegex(text, r"(?i)(?:must|required to) (?:read|load)[^\n]*(?:agents/|references/)")
+
+    def test_global_mode_does_not_broaden_review_or_sharing(self):
+        protocol = (BASE / "references/protocol.md").read_text()
+        for phrase in ("No grants, publication, learning or consent changes",
+                       "Collection-only visibility is not source-project access, contribution or review authority",
+                       "Collection creation is not publication or grants",
+                       "Publication requires separate authorization",
+                       "SAME MODEL / SAME CONTEXT", "not a subagent, independent check",
+                       "without connector replay or manual-review downgrade",
+                       "never drop provenance to bypass access"):
+            self.assertIn(phrase, protocol)
+        scenarios = json.loads((BASE / "tests/scenarios.json").read_text())["scenarios"]
+        global_cases = {s["id"] for s in scenarios if s["id"].startswith("all-accessible-")}
+        self.assertEqual(global_cases, {"all-accessible-explicit", "all-accessible-not-automatic",
+                                       "all-accessible-older-schema", "all-accessible-incompatible-schema",
+                                       "all-accessible-no-workflow", "all-accessible-conflicting-scopes",
+                                       "all-accessible-collection-provenance", "all-accessible-denied"})
 
 
 class WorkspaceProtocolTests(unittest.TestCase):

@@ -1,11 +1,11 @@
-# sharpps-knowledge 0.1.5
+# sharpps-knowledge 0.1.6
 
 Portable skills for scoped Knowledge MCP retrieval, minimized evidence-backed drafts, independent review and reuse feedback. This plugin **does not bundle, install or configure an MCP server**. First connect a compatible standalone/custom/local/combined Knowledge connector through your client's own supported setup. Shared knowledge means existing curated collections explicitly requested in the conversation, never internet anonymous public search. Exposed capabilities and schemas, not the connector's name, determine support.
 
 ## Use
 
 - `knowledge-setup`: discover live host schemas (including deferred tools), pin a connection and automatically resolve/create the current workspace when supported; explicit authorized IDs override resolution, older servers require them. Conversation-requested collections remain explicit.
-- `knowledge-retrieve`: workflow + approved scoped search before relevant work; records are advisory.
+- `knowledge-retrieve`: workflow + approved scoped search before relevant work, or explicit schema-guarded all-accessible authorized search; records are advisory.
 - `knowledge-learn`: extract authorized minimized evidence with the client's normal model; draft by default, parent submits only when learning and contribution are allowed.
 - `knowledge-review`: independent rubric and parent-only guarded review; standing automation is unavailable without supported server policy/queue/automatic tools.
 - `knowledge-status`: honest capability/policy/receipt status and version-specific feedback.
@@ -21,6 +21,12 @@ The same owner/path/namespace persists across clients/conversations; different l
 A new workspace is empty, learning **OFF**, draft-only until separately authorized enablement; persisted automatic-review consent independently remains **OFF**. Existing scopes retain their server settings. Only separate explicit requests may use discovered learning/policy setters. Installation, setup and resolution are not enablement consent.
 
 Shared retrieval requires existing curated collections explicitly requested in the conversation. Discover `knowledge_collection_list` to identify requested authorized metadata, never to search all listed collections. An explicit conversational create request may use `knowledge_collection_create`; creation is not publication, grants or automatic search/contribution authority. No anonymous internet/public knowledge, inferred sharing or deletion/recreation fallback.
+
+## Explicit all-accessible search exception
+
+Only an explicit conversational request from the user to search all accessible knowledge permits global mode. The pinned connection's actual live SearchRequest schema must expose compatible `all_accessible` (boolean, default false, mutually exclusive with project/collection IDs); names or backend version labels are not proof. Send strict JSON boolean `all_accessible: true` and omit `project_id`/`collection_ids`; clarify conflicting explicit IDs. Global includes owned source projects and current exact READ-granted source projects plus readable collections' current published nonprivate approved knowledge, not anonymous/public data.
+
+For this request keep the same connection: no project/scope/namespace/collection enumeration, workspace resolution or automatic workspace creation, and no host path/namespace is needed. No source-project workflow is required when no source project is selected. Older absent/incompatible schema support is explicitly unavailable; never emulate by enumeration, scoped-search fan-out, unscoped legacy calls or connector failover. Denial stops. Ordinary automatic retrieval remains workspace scoped; this request does not replace its pinned scope. Keep returned collection provenance for selected get/version-specific feedback; collection-only access is not source-project contribution/review authority. No new grants, collection creation/publication, learning or consent is authorized.
 
 ## Standing review is off until explicitly enabled
 
@@ -63,4 +69,4 @@ python3 -I -B -m unittest discover -s plugin/sharpps-knowledge/tests -v
 claude plugin validate plugin/sharpps-knowledge --strict
 ```
 
-The existing validator checks canonical frontmatter only; it does not test hooks, provider behavior or authorization. Offline tests check explicit provider registration, self-contained role parity, absence of runtime reference gates, helper behavior and static scenario coverage. When the optional local `scripts/package-plugins.sh` exists, tests run it only in an isolated temporary fixture and inspect the ZIP for actual manifest targets, including flattened Cursor agents; clean checkouts without that untracked script explicitly skip this test. No repository release artifacts are generated. Contract fixtures are **behavioral acceptance scenarios**, not proof a model follows prompts. No model calls, plugin installation or live operations are needed. Real multi-client discovery/delegation, live MCP activation, model-based scenario execution and provider-native behavior remain unrun pending separate authorization.
+The existing validator checks canonical frontmatter only; it does not test hooks, provider behavior or authorization. Offline tests check explicit provider registration, self-contained role parity, absence of runtime reference gates, helper behavior and static scenario coverage, including explicit global opt-in/live-schema guards, older-backend unavailability and collection-only provenance without wider grants/publication. When the optional local `scripts/package-plugins.sh` exists, tests run it only in an isolated temporary fixture and inspect the ZIP for actual manifest targets, including flattened Cursor agents; clean checkouts without that untracked script explicitly skip this test. No repository release artifacts are generated. Contract fixtures are **behavioral acceptance scenarios**, not proof a model follows prompts. No model calls, plugin installation or live operations are needed. Real multi-client discovery/delegation, live MCP activation, model-based scenario execution and provider-native behavior remain unrun pending separate authorization.

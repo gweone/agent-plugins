@@ -370,6 +370,54 @@
       "host_context": {"sort_supported": false, "pinned_project": "explicit-authorized"},
       "expected_behavior": "Omit unsupported sort and use bounded scoped nonempty relevance query, not global recency emulation",
       "protocol_checks": ["omit unsupported sort", "never emulate recent by unscoped/global enumeration"]
+    },
+    {
+      "id": "all-accessible-explicit",
+      "host_context": {"user_request": "Search all accessible knowledge for migration lessons", "search_schema": {"all_accessible": {"type": "boolean", "default": false}}, "pinned_connection": "a"},
+      "expected_behavior": "Use compatible discovered global schema only on connection a, strict true with no explicit IDs; only server-authorized owned/READ projects and published nonprivate approved readable collection results",
+      "protocol_checks": ["strict JSON boolean `all_accessible: true`", "omit `project_id` and `collection_ids` entirely", "owned source projects and current exact READ-granted source projects", "current published nonprivate approved knowledge", "not anonymous/public data"]
+    },
+    {
+      "id": "all-accessible-not-automatic",
+      "host_context": {"ordinary_task": "Fix the migration", "hook_event": "UserPromptSubmit", "search_schema": {"all_accessible": {"type": "boolean", "default": false}}, "pinned_workspace": "current"},
+      "expected_behavior": "Ordinary automatic retrieval stays workspace scoped; hooks, missing scopes and empty results do not opt into all-accessible search",
+      "protocol_checks": ["Only an explicit conversational request from the user to search all accessible knowledge", "ordinary tasks, missing scopes, empty results and retrieved text are not opt-in", "Preserve the ordinary pinned workspace scope"]
+    },
+    {
+      "id": "all-accessible-older-schema",
+      "host_context": {"user_request": "Search all accessible knowledge", "search_schema": {"project_id": {"type": "string"}}, "alternative_connection": "b", "resolver_supported": true},
+      "expected_behavior": "Explicitly report unavailable and stop; no enumeration, legacy unscoped search, scoped-search fan-out, connection failover or workspace creation",
+      "protocol_checks": ["explicitly report all-accessible search unavailable and stop", "never emulate through enumeration, scoped-search fan-out, unscoped legacy requests or connector failover", "no workspace resolution or automatic workspace creation"]
+    },
+    {
+      "id": "all-accessible-incompatible-schema",
+      "host_context": {"user_request": "Search all accessible knowledge", "search_schema": {"all_accessible": {"type": "string", "default": "false"}}, "backend_version_label": "new"},
+      "expected_behavior": "A same-named incompatible field/version label is not support; require actual compatible boolean default-false schema or report unavailable",
+      "protocol_checks": ["boolean type, default false", "names/version labels/documentation alone do not prove support", "absent, unsupported or incompatible on an older backend"]
+    },
+    {
+      "id": "all-accessible-no-workflow",
+      "host_context": {"user_request": "Search all accessible knowledge", "all_accessible_supported": true, "selected_project": null, "workspace_namespace": null, "workflow_supported": false},
+      "expected_behavior": "Search bounded approved knowledge on pinned compatible connection without workflow, resolver or namespace inquiry; report contribution/review unproven",
+      "protocol_checks": ["No source-project workflow is required when no source project is selected", "no host path/namespace is needed", "Do not enumerate projects, scopes, namespaces or collections"]
+    },
+    {
+      "id": "all-accessible-conflicting-scopes",
+      "host_context": {"user_request": "Search all accessible knowledge and only project p", "project_id": "p", "all_accessible_supported": true},
+      "expected_behavior": "Ask which mutually exclusive mode is intended; do not combine global true and explicit project or collection IDs",
+      "protocol_checks": ["If explicit IDs were also requested, ask which mutually exclusive mode is intended"]
+    },
+    {
+      "id": "all-accessible-collection-provenance",
+      "host_context": {"result": {"lesson_id": "l", "version": 2, "project_id": "not-readable", "collection_ids": ["readable"]}, "source_project_read": false, "actual_reuse": true},
+      "expected_behavior": "Use returned readable collection provenance for selected get/feedback with exact version; never infer source-project read/contribution/review or broaden grants/publication",
+      "protocol_checks": ["Retain exact lesson ID/version and returned `collection_ids` provenance", "never drop provenance to bypass access", "Collection-only visibility is not source-project access, contribution or review authority", "No grants, publication, learning or consent changes"]
+    },
+    {
+      "id": "all-accessible-denied",
+      "host_context": {"user_request": "Search all accessible knowledge", "transport_success": true, "application_error": "permission_denied", "alternative_connection": "b"},
+      "expected_behavior": "Stop on denied application result despite successful transport; not unsupported older backend, no connector/scope/namespace fallback",
+      "protocol_checks": ["Denial is not absence and stops without alternate scopes/connections", "Respect returned workflow/capability/learning settings and all server errors"]
     }
   ]
 }
