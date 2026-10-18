@@ -1,159 +1,50 @@
 ---
 name: generate-word
-description: Use when the user wants a real Word document — mentions "Word doc", "docx", "OpenXML", "guideline document", "manual", or wants a deliverable that embeds screenshots/diagrams with formatted headings, tables, and captions rather than plain markdown. Covers generating genuine .docx files programmatically via python-docx (no Word/LibreOffice install needed, works headless), including title pages, styled headings, tables with a bold header row, embedded images with captions, note/callout paragraphs (no native callout element in python-docx — built from a bold colored label prefix), and verifying the output isn't corrupted before handing it over.
+description: Generate genuine Word .docx/OpenXML deliverables with python-docx when users request a Word document, formatted guideline, or manual with headings, tables, screenshots, diagrams, captions, or callouts. Covers document styles, OOXML shading, output placement, structural validation, and separate visual-layout verification.
 ---
 
-# Generating Word (.docx) documents with python-docx
+# Generate Word documents with python-docx
 
-A real OpenXML document, not markdown-exported-to-Word — built programmatically, headless, no
-Office/LibreOffice install required.
+Build a real `.docx` programmatically and headlessly, not markdown renamed as Word.
+Generation does not require Office or LibreOffice; visual verification is separate.
 
-**Cross-platform**: `python-docx` is pure Python manipulating XML inside a zip archive — no
-native/OS-specific dependencies at all. `pip install python-docx` and every example below work
-identically on Windows, macOS, and Linux; nothing in this skill is platform-specific.
+## Workflow: Spec → Plan → Build → Verify
 
-## Workflow: Spec → Plan → Build
+1. **Spec** — resolve audience, sections, image placement, and the final path.
+   Ask when structure or audience is ambiguous. A real deliverable belongs in the
+   relevant project's repo, typically `docs/`, not a scratch/temp directory.
+2. **Plan** — outline sections and confirm tables/images before generation,
+   especially for long documents. Fixing an outline is cheaper than rebuilding.
+3. **Prepare** — check for `python-docx` (import `docx`), not the unrelated abandoned
+   `docx` package. Install only with authorization in the chosen environment; see
+   [setup and verification](references/setup-and-verification.md).
+4. **Build** — use [document elements](references/document-elements.md) for the exact
+   base styles, title page, screenshot/caption helper, bold table headers, OOXML
+   shading, and note/callout helper. Save to the agreed final location.
+5. **Verify** — reopen the `.docx`, check outline/content and paragraph/table/image
+   presence, then inspect rendered pages when an approved viewer is available.
+   Report any missing visual inspection explicitly before handing over the path.
 
-1. **Spec** — resolve the document's actual structure before writing any code: sections/headings,
-   which images go where (if any — pair with the `screen-capture` skill when the images are live
-   screenshots, not pre-supplied), and where the finished file should be saved (a real deliverable
-   belongs in the relevant repo, e.g. a `docs/` folder — not left in a scratch/temp directory).
-   Ask the user if the structure or intended audience is ambiguous.
-2. **Plan** — outline the section list and confirm any tables/images to embed before generating,
-   especially for a long document — cheaper to fix the outline than to regenerate a 20-page file.
-3. **Build** — write and run the generation script, then verify the output (see Verification)
-   before reporting it done.
+## Formatting rules
 
-## Setup
+- Set base styles once: Calibri 11pt, heading colors, and the examples' brand color
+  provide a consistent starting point; adapt them to the requested document design.
+- Center screenshot paragraphs and captions; the helper uses italic 9.5pt captions.
+  Size images for actual page width/margins; do not assume automatic fitting.
+- Use an existing table style and explicitly bold header runs. Raw OOXML is needed
+  for cell shading; keep the provided namespace and element handling intact.
+- python-docx has no native callout-box element. Use an indented paragraph with a
+  bold colored label prefix rather than claiming the helper creates a native box.
+- A successful script or readable ZIP/package does not prove correct pagination,
+  image legibility, or table layout. Structural checks are necessary, not visual proof.
 
-```bash
-pip install python-docx
-```
+## Detailed guidance and composition
 
-(Import name is `docx`, package name is `python-docx` — don't confuse it with the unrelated
-abandoned `docx` PyPI package.)
-
-## Base structure
-
-```python
-from docx import Document
-from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-
-doc = Document()
-
-# Base styles - set once, applies throughout
-normal = doc.styles["Normal"]
-normal.font.name = "Calibri"
-normal.font.size = Pt(11)
-
-BRAND_COLOR = RGBColor(0x1B, 0x4F, 0x8C)
-for i in range(1, 4):
-    doc.styles[f"Heading {i}"].font.color.rgb = BRAND_COLOR
-
-doc.add_heading("Section Title", level=1)
-doc.add_paragraph("Body text.")
-doc.add_paragraph("Bullet item", style="List Bullet")
-
-doc.save("/path/to/repo/docs/Output.docx")
-```
-
-## Title page
-
-```python
-title = doc.add_paragraph()
-title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-run = title.add_run("Document Title")
-run.font.size = Pt(28)
-run.bold = True
-run.font.color.rgb = BRAND_COLOR
-
-doc.add_page_break()   # before the real content starts
-```
-
-## Embedding screenshots with captions
-
-```python
-def add_screenshot(doc, path, caption, width=6.3):
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.add_run().add_picture(path, width=Inches(width))
-
-    cap = doc.add_paragraph()
-    cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    cap_run = cap.add_run(caption)
-    cap_run.italic = True
-    cap_run.font.size = Pt(9.5)
-    cap_run.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
-```
-
-`width=6.3` inches fits a standard US Letter/A4 page with normal margins without overflowing —
-adjust down for a two-column layout, don't rely on python-docx to auto-fit.
-
-## Tables
-
-```python
-tbl = doc.add_table(rows=1, cols=2)
-tbl.style = "Light Grid Accent 1"   # built-in style name - must exist in Word's style gallery
-hdr = tbl.rows[0].cells
-hdr[0].text = "Column A"
-hdr[1].text = "Column B"
-for cell in hdr:
-    for run in cell.paragraphs[0].runs:
-        run.bold = True   # header text isn't bold by default even with a styled table
-
-for a, b in data_rows:
-    row = tbl.add_row().cells
-    row[0].text = a
-    row[1].text = b
-```
-
-Cell background shading has no high-level API — needs raw OOXML if truly required:
-
-```python
-from docx.oxml.ns import qn
-from docx.oxml import OxmlElement
-
-def shade_cell(cell, hex_color):
-    tcPr = cell._tc.get_or_add_tcPr()
-    shd = OxmlElement("w:shd")
-    shd.set(qn("w:fill"), hex_color)
-    tcPr.append(shd)
-```
-
-## Note/callout paragraphs
-
-python-docx has no native callout-box element — approximate one with a bold colored label:
-
-```python
-def add_note(doc, text, label="Note"):
-    p = doc.add_paragraph()
-    p.paragraph_format.left_indent = Inches(0.25)
-    run = p.add_run(f"{label}: ")
-    run.bold = True
-    run.font.color.rgb = BRAND_COLOR
-    p.add_run(text)
-```
-
-## Verification
-
-Always re-open the generated file and sanity-check it before reporting the task done — a
-malformed image embed or bad OOXML element can silently produce a file Word refuses to open,
-which a script exiting 0 will not reveal:
-
-```python
-from docx import Document
-d = Document("/path/to/Output.docx")
-print("paragraphs:", len(d.paragraphs))
-print("tables:", len(d.tables))
-print([p.text for p in d.paragraphs if p.style.name.startswith("Heading")])
-```
-
-Confirm the heading list matches the intended outline and the paragraph/table counts are
-non-trivial (a suspiciously low count usually means a section silently failed to add).
-
-## Where to save
-
-If the document is a real deliverable (not a one-off scratch artifact), save it into the
-relevant project's own repo — typically a `docs/` folder — not a temp/scratchpad path, so it's
-versioned and discoverable alongside the code/content it documents.
+- [Document elements and formatting](references/document-elements.md) contains all
+  runnable construction snippets and reusable helpers, including raw OOXML shading.
+- [Setup, verification, and output location](references/setup-and-verification.md)
+  contains installation, reopening checks, validation limits, and delivery rules.
+- For live images, optionally use [screen-capture](../screen-capture/SKILL.md).
+- For an existing findings record, optionally use content from
+  [findings](../findings/SKILL.md); map metadata to a
+  title-page table and numbered findings to subheadings without redoing the drafting.

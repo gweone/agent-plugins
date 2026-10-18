@@ -1,227 +1,57 @@
 ---
 name: sharpps-pipeline-authoring
-description: How to author a correct SharpPS.Shells pipeline in a workspace — when a pipeline is the right shape vs a public function, the folder/processor conventions, the 00-Help / 01-Resolve-Configuration patterns, sharpps.config-driven per-project settings, abort semantics, and the verification checklist before shipping. Use when the user asks to create/add/write a pipeline or processor for SharpPS.Shells, wonders "pipeline or function?", or wants project-level (workspace) pipelines. For running, inspecting, or runtime-patching already-registered pipelines, use the sibling `sharpps-pipeline` skill instead.
+description: Create SharpPS.Shells workspace pipelines and PowerShell processors. Covers pipeline versus function, shared arguments, sharpps.config, Help/Aborted/AlwaysRun, chaining, and verification.
 ---
 
-# Authoring a SharpPS.Shells pipeline in a workspace
+# Authoring SharpPS.Shells workspace pipelines
 
-This skill is about *writing* pipelines correctly. The sibling `sharpps-pipeline` skill covers the
-engine (`Register-Pipeline`/`Start-Pipeline`/`Get-Pipeline`/`Update-Pipeline`) — read it for how
-registration and execution work; read this one before creating new pipeline folders/processors.
+For PowerShell **SharpPS.Shells**, not C# `SharpPS.Pipeline` or Sitecore `CorePipeline`.
+For running/inspection use [runtime lookup](../sharpps-pipeline/SKILL.md); for session mutations
+use [runtime patching](../sharpps-pipeline-patching/SKILL.md). Authoring changes persistent files.
+
+## Spec → Plan → Execution
+
+1. **Spec** — agree capability, workspace/file targets, trigger keys, configuration, failure
+   behavior, and verification fixtures. Choose a function or a real multi-step pipeline below.
+2. **Plan** — name exact files and intended ordering, shared-state keys, and tests. Execution
+   requires a separately explicit host/session, full arguments, predecessor graph, target, and
+   authorization for deployments, migrations, installs, container operations, or other effects.
+3. **Execution** — edit only agreed files; run only authorized isolated checks and report gaps.
+   Never automatically install/trust/bypass certificates or use a real unrequested target.
 
 ## Rule 0 — pipeline or public function?
 
-The module's architecture rule (set by its author):
+- One capability belongs in `Functions/Verb-Noun.ps1`: composable parameters, tab completion,
+  and `-WhatIf` where implemented. Never add a pipeline merely translating a hashtable into
+  one function's parameters. Processors orchestrate public functions; functions do the work.
+- A pipeline is an ordered sequence with shared state and abort semantics: later steps depend
+  on earlier results. Do not wrap a single obvious command (`docker logs`, `docker exec ...
+  bench`); wrap meaningful sequences, non-obvious incantations, parsing, hashing, or polling.
 
-- **Public function** (`Functions/Verb-Noun.ps1`) — a single capability, called directly and
-  globally: composable, tab-completed parameters, `-WhatIf`, usable in any script. If the thing
-  is one step, it is a function. **Never create a pipeline whose processors merely translate
-  `@{ Key = ... }` into one function's parameters — that is a layer, not a pipeline.**
-- **Pipeline** (`Pipelines/<Name>/NN-*.ps1`) — an *ordered sequence* with shared state and abort
-  semantics: step 2 must not run if step 1 failed, later steps read what earlier steps resolved.
-  Processors **orchestrate public functions; functions do the work** (the shipped `sitecore`
-  pipeline calls `Invoke-SitecorePublish`/`Invoke-SyncUnicorn`; the `deploy` pipeline calls
-  `Publish-Artifact`-style copy + `Get-DeployDrift` + `Find-LogError`).
+## Rule 1 — stack-neutral and machine-neutral
 
-Also never ship a function whose body is one obvious command the user already types
-(`docker logs`, `docker exec ... bench`) — wrap only sequences, incantations nobody remembers,
-or logic (parsing, hashing, polling).
+No machine-specific absolute paths, even defaults; no stack-specific module defaults.
+Project settings belong in lowercase XML `sharpps.config`; machine settings in environment
+variables; per-call parameters/`$arguments` win. Missing optional config skips gracefully with
+an exact key named in the message; required-operation failure warns, sets `Aborted`, and returns.
 
-## Rule 1 — the module is stack-neutral and machine-neutral
+## Processor contract and Help safety
 
-`SharpPS.Shells` serves Sitecore, Liferay, and future stacks from one codebase, installed on any
-machine. Therefore, in module code (`Functions/`, `Pipelines/`):
+Numbered files share one mutable `[hashtable]$arguments`, including chained pipelines.
+`Aborted` skips later non-`AlwaysRun` processors; cleanup/reporting may still execute.
+`00-Help.ps1` intends to print usage and abort ordinary later steps, **not guarantee read-only
+execution**: predecessors run before the engine sets `Help`, and `AlwaysRun` can run afterward.
+Prefer reading source/`Get-Pipeline`; inspect all side effects before executing a Help check.
 
-- **No absolute paths of any machine.** Not even as parameter defaults.
-- **No stack-specific defaults** (no `/opt/liferay/...`, no IIS paths). If a step needs one,
-  it comes from configuration; when it is missing, **skip that step gracefully with a message
-  that names the exact key to add** — do not throw, do not guess.
-- Per-**project** settings → `sharpps.config` (lowercase filename, XML, read from the current
-  directory). Per-**machine** settings → environment variables. Per-**call** → parameters/
-  `$arguments` (always win over config).
+## Focused lookup
 
-## Workspace layout and registration
+| Need | Read |
+|---|---|
+| Workspace tree, registration, processor template, 00-Help/banner pitfalls | [Layout and processors](references/layout-and-processors.md) |
+| 01-Resolve-Configuration, XML keys, aborts, native exit/error handling | [Configuration and failure](references/configuration-and-failure.md) |
+| Delegation/predecessors, isolated verification, worked source traces | [Chaining and verification](references/chaining-and-verification.md) |
 
-A workspace (project repo) can carry its own pipelines — they do not have to live inside the
-module:
-
-```
-MyWorkspace/
-  sharpps.config              # per-project settings (see below)
-  Pipelines/
-    release/
-      00-Help.ps1
-      01-Resolve-Configuration.ps1
-      02-Build.ps1
-      03-Package.ps1
-      04-Verify.ps1
-```
-
-```powershell
-Register-Pipeline -BasePath ./Pipelines -Force     # folder name → pipeline name (lower-cased)
-Start-Pipeline release -Help
-```
-
-Ordering is **purely alphabetical on filename** — the `NN-` prefix is the only ordering
-mechanism. A filename containing the literal substring `AlwaysRun` marks that processor to run
-even after an abort (use for cleanup/reporting steps). Note the shipped `publish` pipeline's
-`01-Startup.ps1` also auto-registers any `Pipelines/` folders it finds under the solution
-directory — workspace pipelines get picked up when developers run the standard flows.
-
-## The processor template
-
-Every processor has exactly this shape (tab-indented param block is house style):
-
-```powershell
-[CmdletBinding()]
-param(
-	[hashtable]$arguments
-)
-
-if($arguments.ContainsKey("MyTriggerKey"))
-{
-	# read/write shared state via $arguments; call public functions for the real work
-}
-```
-
-Processors are dot-sourced with the *same* `$arguments` hashtable, so anything you set is visible
-to every later processor (and to chained pipelines). Gate each optional step on its own trigger
-key so `Start-Pipeline name @{ OnlyThis = $true }` runs just the relevant steps.
-
-## Standard processor 00: Help
-
-First file is always `00-Help.ps1` — prints usage and aborts, so `Start-Pipeline <name> -Help`
-never executes real steps:
-
-```powershell
-if($arguments.ContainsKey("Help")){
-	Write-Host @"
-          ...ascii banner...
-"@ -ForegroundColor Red
-	Write-Host "Usage :" -ForegroundColor Yellow
-	Write-Host "Start-Pipeline release @{ Build = `$true }" -ForegroundColor Magenta -NoNewline
-	Write-Host "`t What it does"
-	$arguments["Aborted"] = $true
-}
-```
-
-Gotcha (hit for real): **no backtick characters inside the ASCII banner** — inside a
-double-quoted here-string PowerShell eats them as escapes and silently corrupts the art
-(a "Docker" banner rendered as "Doker"). Verify by dot-sourcing the file with
-`@{ Help = $true }` and reading the output.
-
-## Standard processor 01: Resolve-Configuration
-
-Second file fills `$arguments` from `sharpps.config`, **only for keys not already passed** —
-explicit arguments always beat config (same pattern as the shipped Sitecore/SIF/Artifact
-pipelines):
-
-```powershell
-if (-Not (Test-Path -Path "sharpps.config")){
-    return
-}
-[xml]$config = Get-Content "sharpps.config"
-if(-not $arguments.ContainsKey("Artifact") -and $null -ne $config.configuration.artifact){
-    $arguments["Artifact"] = @($config.configuration.artifact)
-}
-# ...one block per key
-```
-
-Established `sharpps.config` keys (add your own as lowercase elements under `<configuration>`):
-
-| Key | Meaning | Used by |
-|---|---|---|
-| `url`, `core`, `publishpath`, `username`, `password` | Sitecore instance settings | `sitecore`/`publish`/`artifact` pipelines |
-| `artifact` | glob(s) of built artifact(s), repeatable element | `deploy` pipeline, `Publish-Artifact`, `Get-DeployDrift` |
-| `deploypath` | hot-deploy folder the runtime watches | same |
-| `container` | docker container name | same + `Find-LogError`/`Clear-DockerLog` steps |
-| `containerpath` | where the runtime keeps *loaded* artifacts inside the container | `Get-DeployDrift` verify step |
-| `build` | the project's build command line | `deploy` pipeline, `Publish-Artifact -Build` |
-
-## Failing correctly: Aborted, not throw
-
-A processor that hits a hard failure should **warn and abort, then return** — not throw:
-
-```powershell
-if ($somethingRequired -eq $null)
-{
-	Write-Warning "Nothing to deploy. Pass Artifact/DeployPath or add <artifact>/<deploypath> to sharpps.config."
-	$arguments["Aborted"] = $true
-	return
-}
-```
-
-`Start-Pipeline` skips every later non-`AlwaysRun` processor once `Aborted` is set, but
-`AlwaysRun` cleanup/report steps still execute — a `throw` would kill those too. The warning
-must always name the exact parameter/config key that fixes the problem.
-
-## Running native commands (build steps) — two real gotchas
-
-```powershell
-$global:LASTEXITCODE = 0            # (1) pure-PowerShell commands never set it — reset first,
-try                                  #     or a stale/unset value gives a false verdict
-{
-	$ErrorActionPreference = "Stop"  # (2) command-not-found is non-terminating by default:
-	Invoke-Expression $arguments["BuildCommand"]   # it prints red and KEEPS GOING unless EAP=Stop
-}
-catch
-{
-	Write-Warning "Build failed: $_"
-	$arguments["Aborted"] = $true
-	return
-}
-finally
-{
-	$ErrorActionPreference = "Continue"
-}
-if ($LASTEXITCODE -ne 0)
-{
-	Write-Warning "Build failed with exit code $LASTEXITCODE"
-	$arguments["Aborted"] = $true
-}
-```
-
-Both were found by testing, not review: without (1) an `echo`-style build "succeeds" with a
-phantom failure; without (2) a typo'd build command prints an error and the pipeline happily
-deploys nothing.
-
-## Chaining pipelines
-
-Two mechanisms, both sharing the same `$arguments`:
-
-```powershell
-# a) a delegating processor (e.g. Liferay/Frappe forwarding Service/Log/Restart keys to docker):
-$isVerbose = $VerbosePreference -eq "Continue"
-Start-Pipeline docker -Verbose:$isVerbose -Args $arguments
-
-# b) registration-time dependency — every run of this pipeline runs startup first:
-Register-Pipeline -BasePath ./Pipelines -Predecessors startup -Force
-```
-
-Prefer (a) when only *some* trigger keys should forward; (b) when the other pipeline must
-always complete first.
-
-## Verification checklist before calling it done
-
-Run every one of these — each catches a class of bug that has actually occurred:
-
-1. `Import-Module ./SharpPS.Shells.psd1 -Force` (or `Register-Pipeline ... -Force`) — parses
-   cleanly, pipeline appears.
-2. `Start-Pipeline <name> -Help` — banner renders un-mangled, usage lines match real keys, and
-   **nothing else runs** (Help must abort the chain).
-3. `Start-Pipeline <name>` with empty/zero config in an empty directory — every step either
-   works or aborts with a message naming the missing key; no unhandled exceptions.
-4. Force each failure path (bad build command, missing artifact, wrong container) — verify the
-   chain stops where it should and later steps are skipped.
-5. The success path end-to-end — but **never against a real target the user didn't ask to
-   touch**: simulate the environment-changing part (scratch folders, a byte-identical artifact,
-   a background job standing in for the consumer) and leave the first real run to the user.
-6. Sweep for leaked specifics: `grep -rin "liferay|sitecore|/opt/|C:\\\\" <new files>` must come
-   back empty (examples in help text use neutral placeholders like `myservice`).
-
-## Reference implementation
-
-`SharpPS.VisualStudio/SharpPS.Shells/Pipelines/Deploy/` is the canonical worked example — a
-stack-neutral hot-deploy loop (resolve config → build → clear container log → copy → poll-verify
-by hash → error report) where every processor follows the rules above and all real work lives in
-public functions (`Clear-DockerLog`, `Get-DeployDrift`, `Find-LogError`).
+`Invoke-Expression` build configuration is executable trusted code, not safe data; read its
+[caveat](references/configuration-and-failure.md#command-configuration-is-trusted-code) before reuse.
+External source/version examples are not newly runtime-verified. `Deploy/` and `docker` are
+workspace/version examples, not guaranteed shipped pipelines; inspect the installed version.
