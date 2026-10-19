@@ -223,7 +223,7 @@ class PackageTests(unittest.TestCase):
         fixture = json.loads((BASE / "tests/scenarios.json").read_text())
         self.assertIn("unrun model-behavior", fixture["kind"])
         protocol = (BASE / "references/protocol.md").read_text()
-        self.assertEqual(len({s["id"] for s in fixture["scenarios"]}), 48)
+        self.assertEqual(len({s["id"] for s in fixture["scenarios"]}), 62)
         for scenario in fixture["scenarios"]:
             self.assertTrue(scenario["expected_behavior"])
             for phrase in scenario["protocol_checks"]:
@@ -470,6 +470,83 @@ class WorkspaceProtocolTests(unittest.TestCase):
         self.assertFalse(any(isinstance(n, ast.Attribute) and n.attr in
                              {"getcwd", "uname", "hostname", "stat", "read_text", "resolve"}
                              for n in ast.walk(tree)))
+
+
+class CorrectionWorkflowTests(unittest.TestCase):
+    """Static instruction/fixture coverage only; no model, backend or subprocess calls."""
+
+    def require(self, text, phrases):
+        for phrase in phrases:
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, text)
+
+    def test_actual_reuse_feedback_and_outcome_calibration(self):
+        text = (BASE / "skills/knowledge-retrieve/SKILL.md").read_text()
+        self.require(text, ("merely retrieving", "exact selected lesson ID/version",
+                            "knowledge_feedback", "collection provenance", "Parent alone",
+                            "Feedback acceptance is not correction authorization or approval",
+                            "A command failure alone", "environment/preconditions",
+                            "If no live feedback outcome honestly fits", "observation without a write",
+                            "no per-feedback confirmation or new persisted consent flag",
+                            "standing review consent does not authorize sharing task evidence"))
+
+    def test_correction_contract_and_parent_guards(self):
+        text = (BASE / "skills/knowledge-learn/SKILL.md").read_text()
+        self.require(text, ("original `lesson_id`", "minimal delta", "expected_version",
+                            "Never substitute an unrelated `knowledge_submit_candidates`",
+                            "CorrectInput", "new_evidence", "default empty", "100 fresh EvidenceInput",
+                            "expected-current attached persistent IDs", "duplicate aliases",
+                            "collisions with attached IDs", "unknown/foreign/non-current",
+                            "unused fresh attachments", "256,000 aggregate UTF-8 bytes",
+                            "Fresh-evidence-only correction is valid", "approved get normally hides",
+                            "no retained IDs", "history enumeration", "legacy review-only",
+                            "learning is disabled", "task evidence-sharing authorization",
+                            "source-project review authority", "enabled learning",
+                            "Missing consent/authority/schema means conversational draft only",
+                            "Parent alone", "transport/application errors", "candidate receipts",
+                            "no blind retries", "auto-merge/retry", "connector/scope failover",
+                            "ten per cycle", "unattended worker"))
+        contract = (BASE / "references/backend-contract.md").read_text()
+        self.require(contract, ("new_evidence: list[EvidenceInput]", "maximum 100",
+                                "review/private-owner/expected-version guards",
+                                "Only nonempty fresh evidence", "legacy review-only",
+                                "256,000 UTF-8 bytes", "contributor_reported",
+                                "no extraction jobs/public-submission fallback"))
+
+    def test_draft_challenge_and_persisted_review_are_distinct_skill_only(self):
+        # The fixture intentionally contains only skills, with no agents/references.
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            shutil.copytree(BASE / "skills", root / "skills")
+            self.assertFalse((root / "agents").exists())
+            self.assertFalse((root / "references").exists())
+            for name in ("learn", "review"):
+                text = (root / f"skills/knowledge-{name}/SKILL.md").read_text()
+                self.require(text, ("self-contained", "draft-only", "read-only",
+                                    "SAME MODEL / SAME CONTEXT", "weaker", "Delegation denial",
+                                    "DISTINCT", "pending candidate", "current_version",
+                                    "default/shared", "project-version access",
+                                    "standing review consent", "manual operator request",
+                                    "policy/version/state guards", "publication",
+                                    "ten", "unattended worker"))
+                self.assertNotRegex(text, r"(?i)(?:must|required to) (?:read|load)[^\n]*(?:agents/|references/)")
+            review = (root / "skills/knowledge-review/SKILL.md").read_text()
+            self.require(review, ("unsaved draft has no candidate review-state revision",
+                                  "complete persisted evidence", "grant no approval",
+                                  "Never invent consent", "knowledge_auto_review",
+                                  "Never use manual review to emulate standing consent"))
+
+    def test_optional_role_correction_body_parity(self):
+        for role in ("extractor", "reviewer"):
+            base = (BASE / f"agents/knowledge-{role}.md").read_text()
+            cursor = (BASE / f"agents/cursor-knowledge-{role}.md").read_text()
+            self.assertEqual(base.split("---", 2)[2], cursor.split("---", 2)[2])
+            self.require(base, ("original", "minimal delta", "Fresh-evidence-only correction",
+                                "authorized bounded reviewer views", "draft-only",
+                                "task evidence-sharing permission", "legacy review-only",
+                                "DISTINCT", "current_version", "default/shared retrieval",
+                                "agreement grant", "Never perform MCP writes",
+                                "A command failure alone", "no live feedback outcome honestly fits"))
 
 
 if __name__ == "__main__":
