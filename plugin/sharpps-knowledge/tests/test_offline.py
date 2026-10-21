@@ -36,11 +36,18 @@ class HookTests(unittest.TestCase):
             self.assertNotIn("sensitive-marker", json.dumps(result))
             self.assertNotIn("/must/not/open", json.dumps(result))
             self.assertEqual(set(result), {"hookSpecificOutput"})
+            self.assertIn("Accepted submission OR correction", specific["additionalContext"])
+            self.assertIn("before final response", specific["additionalContext"])
 
     def test_stop_default_off_and_nonblocking_opt_in(self):
         data = b'{"hook_event_name":"Stop","stop_hook_active":false}'
         self.assertIsNone(self.run_hook(data))
-        self.assertEqual(set(self.run_hook(data, enabled=True)), {"systemMessage"})
+        output = self.run_hook(data, enabled=True)
+        self.assertEqual(set(output), {"systemMessage"})
+        for phrase in ("Accepted submission OR correction", "before final response",
+                       "no new manual prompt", "ten-review-item cycle", "nonblocking",
+                       "not consent, orchestration"):
+            self.assertIn(phrase, output["systemMessage"])
 
     def test_stop_recursion_and_unknown_guard(self):
         for guard in (True, None, "false", 0):
@@ -274,7 +281,7 @@ class SkillOnlyDistributionTests(unittest.TestCase):
             "at most ten candidates total per cycle", "max 10 across all pages/projects",
             "advertised limit is lower", "exact candidate version, review-state revision and policy revision",
             "Parent alone", "Recheck consent/authority", "revoked/expired/denied ACL",
-            "stale candidate/state/policy", "Re-read queue/state", "application error payloads",
+            "stale candidate/state/policy", "re-read queue/state", "application error payloads",
             "review_input_incomplete", "(409)", "No connector replay", "manual-review downgrade",
             "uncertain possibly committed", "Never enable consent, learning", "ACL/grants",
             "publication requires separate explicit authorization", "operator request",
@@ -307,8 +314,8 @@ class SkillOnlyDistributionTests(unittest.TestCase):
             "ClientCandidateSubmission", "UTF-8", "10 candidates, 100 evidence items, 256,000",
             "stable task/submission idempotency key", "changed content needs a new key",
             "application errors", "no connector replay", "distinct evaluative review step",
-            "if unavailable, leave the candidate pending", "weaker separation",
-            "without per-candidate human confirmation", "exact live policy/version/state and ACL checks"))
+            "mandatory standing-review continuation", "weaker separation",
+            "without per-candidate human confirmation", "review-state revision and policy revision"))
 
     def test_setup_retrieval_status_keep_scope_and_error_guards_inline(self):
         setup = self.skill("setup")
@@ -323,6 +330,72 @@ class SkillOnlyDistributionTests(unittest.TestCase):
         self.require(status, ("Status is read-only", "knowledge_list_workspaces", "opaque cursor",
                              "sole separately described write", "actual reuse", "exact selected lesson",
                              "no connector replay", "learning/policy enablement", "missing scope"))
+
+
+class ReviewContinuationTests(unittest.TestCase):
+    """Static regression contracts, not proof that a host/model executes the flow."""
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        shutil.copytree(BASE / "skills", self.root / "skills")
+        self.assertFalse((self.root / "agents").exists())
+        self.assertFalse((self.root / "references").exists())
+
+    def text(self, name):
+        return (self.root / f"skills/knowledge-{name}/SKILL.md").read_text()
+
+    def test_both_successful_save_branches_require_same_turn_continuation(self):
+        learn = self.text("learn")
+        correction = learn.split("## Correction branch:", 1)[1].split(
+            "## Parent submission", 1)[0]
+        submission = learn.split("## Parent submission", 1)[1].split(
+            "## Mandatory", 1)[0]
+        for section in (correction, submission):
+            with self.subTest(branch="correction" if section == correction else "submission"):
+                self.assertIn("receipt", section)
+                self.assertIn("active turn", section)
+                self.assertRegex(section, r"mandatory|MUST")
+                self.assertIn("manual", section)
+                self.assertIn("uncertain", section)
+        self.assertNotIn("completes extraction/submission by leaving candidates pending", learn)
+        self.assertNotIn("if unavailable, leave the candidate pending", learn)
+        self.assertIn("no other skill, roles/references or filesystem reads are required", learn)
+
+    def test_policy_queue_reviewer_write_guards_are_inline(self):
+        learn = self.text("learn")
+        continuation = learn.split("## Mandatory same-turn", 1)[1]
+        for phrase in ("knowledge_get_review_policy", "knowledge_review_queue",
+                       "knowledge_auto_review", "Read current policy",
+                       "Disabled, unknown or unsupported policy", "pending with the actual reason",
+                       "never enable consent", "not a prerequisite", "live source-project",
+                       "SAME MODEL / SAME CONTEXT", "weaker separation",
+                       "delegation denial", "summary_truncated", "Unknown completeness",
+                       "missing references", "contributor_reported", "not operational success",
+                       "NO automatic approval or `evidence_supported`", "approved_for_reuse",
+                       "exact candidate ID/version/review-state revision", "Parent alone",
+                       "review-state revision and policy revision", "review_input_incomplete",
+                       "uncertain possibly committed", "manual-review bypass",
+                       "separate explicit authorization", "not deterministic runtime enforcement"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, continuation)
+        for obsolete in ("references_loaded", "reference_status:", "required reference-delivery gate"):
+            self.assertNotIn(obsolete, continuation)
+
+    def test_one_cycle_budget_queue_omission_and_no_recursive_promotion(self):
+        for name in ("learn", "review"):
+            text = self.text(name)
+            with self.subTest(skill=name):
+                for phrase in ("participation", "ten", "across", "returned items",
+                               "newly saved", "omitted", "pending", "not reviewed",
+                               "evidence_supported", "poll", "already assessed",
+                               "policy revision", "complete", "No backlog drain"):
+                    self.assertIn(phrase, text)
+                self.assertRegex(text, r"never reset|do not reset")
+                self.assertRegex(text, r"recurs")
+                self.assertRegex(text, r"candidate lists|candidate-listing")
+                self.assertIn("scope/project enumeration", text)
 
 
 class GlobalSearchProtocolTests(unittest.TestCase):
@@ -526,8 +599,8 @@ class CorrectionWorkflowTests(unittest.TestCase):
                                     "SAME MODEL / SAME CONTEXT", "weaker", "Delegation denial",
                                     "DISTINCT", "pending candidate", "current_version",
                                     "default/shared", "project-version access",
-                                    "standing review consent", "manual operator request",
-                                    "policy/version/state guards", "publication",
+                                    "standing review consent", "operator request",
+                                    "policy revision", "publication",
                                     "ten", "unattended worker"))
                 self.assertNotRegex(text, r"(?i)(?:must|required to) (?:read|load)[^\n]*(?:agents/|references/)")
             review = (root / "skills/knowledge-review/SKILL.md").read_text()
