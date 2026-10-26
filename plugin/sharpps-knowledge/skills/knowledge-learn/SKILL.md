@@ -80,4 +80,8 @@ Inspect transport AND application errors and exact acceptance receipts; tool/HTT
 
 This is mandatory active-client prompt-level workflow guidance, not deterministic runtime enforcement, proof of model compliance or an after-close/background guarantee. Servers enforce consent, ACL, exact revision and input-completeness guards; hooks only remind.
 
+## Bulk source documents
+
+To draft from documents, split by heading into chunks of at most about 1,800 characters, keep source path, heading path, line range and content hash as provenance, skip chunks that look like credentials or personal data, and draft at most ten candidates per cycle. Evidence is source-document review with result `not_run` unless the user supplies real verification; never invent root cause or verification. The optional helper `scripts/chunk_source.py <path> [--offset N]` prints such chunks (paths here are relative to the directory containing this SKILL.md; needs Python 3); without it, chunk by hand under the same rules. Details: `references/bulk-sources.md`.
+
 Optional explanation only: [shared protocol](../../references/protocol.md), [review rubric](../../references/review-rubric.md), [historical backend contract](../../references/backend-contract.md).

@@ -1,0 +1,7 @@
+{
+  "_comment": "Template: replace ids and queries with real approved knowledge items. Ids may omit @version. An empty expected list marks a negative case that should return nothing.",
+  "cases": [
+    {"id": "case-1", "query": "describe a problem you expect an approved item to solve", "expected": ["replace-with-lesson-id"]},
+    {"id": "case-2", "query": "a question the corpus should NOT answer", "expected": []}
+  ]
+}

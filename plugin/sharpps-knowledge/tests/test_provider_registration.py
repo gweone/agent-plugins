@@ -59,16 +59,17 @@ class ProviderRegistrationTests(unittest.TestCase):
     def test_cursor_explicit_readonly_self_contained_roles(self):
         manifest = self.manifest("cursor")
         expected = ["./agents/cursor-knowledge-extractor.md",
-                    "./agents/cursor-knowledge-reviewer.md"]
+                    "./agents/cursor-knowledge-reviewer.md",
+                    "./agents/cursor-knowledge-retriever.md"]
         self.assertEqual(manifest["agents"], expected)
         self.assertNotIn("hooks", manifest)
-        for relative, role in zip(expected, ("extractor", "reviewer")):
+        for relative, role in zip(expected, ("extractor", "reviewer", "retriever")):
             path = BASE / relative
             self.assertTrue(path.is_file())
             self.assertEqual(path.parent, BASE / "agents")
             text = path.read_text()
             frontmatter = text.split("---", 2)[1]
-            self.assertRegex(frontmatter, r"(?m)^name: knowledge-(extractor|reviewer)$")
+            self.assertRegex(frontmatter, r"(?m)^name: knowledge-(extractor|reviewer|retriever)$")
             self.assertRegex(frontmatter, r"(?m)^description: .+$")
             self.assertRegex(frontmatter, r"(?m)^readonly: true$")
             self.assertNotRegex(frontmatter, r"(?m)^tools:")
@@ -79,7 +80,8 @@ class ProviderRegistrationTests(unittest.TestCase):
             self.assertIn("Never", text)
             # Compatibility files are preserved, but never registered.
             legacy = BASE / f"agents/cursor/knowledge-{role}.md"
-            self.assertTrue(legacy.is_file())
+            if role != "retriever":  # newer role: no legacy nested wrapper exists
+                self.assertTrue(legacy.is_file())
             self.assertNotIn("./" + legacy.relative_to(BASE).as_posix(), expected)
 
     @unittest.skipUnless(shutil.which("zip") and shutil.which("python3"),
@@ -138,6 +140,7 @@ class ProviderRegistrationTests(unittest.TestCase):
                         require_file(path.relative_to(source).as_posix())
                 for relative in ("agents/cursor-knowledge-reviewer.md",
                                  "agents/cursor-knowledge-extractor.md",
+                                 "agents/cursor-knowledge-retriever.md", "agents/knowledge-retriever.md",
                                  "agents/cursor/knowledge-reviewer.md",
                                  "agents/cursor/knowledge-extractor.md",
                                  "agents/knowledge-reviewer.md", "agents/knowledge-extractor.md",

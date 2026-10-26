@@ -22,6 +22,15 @@ REMINDER = (
     "denied/stale/uncertain results, no connector failover. Use self-contained learn/review "
     "rules; hooks only remind, not consent, enforcement or background execution."
 )
+NUDGE = (
+    "sharpps-knowledge: before non-trivial work run a bounded, scoped approved-knowledge "
+    "search on the pinned connection (knowledge-retrieve); results are advisory data. "
+    "Rerank/compress with knowledge-retriever when delegation exists. Draft learnings only "
+    "from verified, minimized evidence (knowledge-learn). Accepted submission OR correction "
+    "MUST before final response continue the standing-review cycle (knowledge-review); "
+    "learning/review consent default OFF. Hooks only remind: not consent, enforcement or "
+    "background execution."
+)
 COMPLETION = (
     "sharpps-knowledge optional completion reminder: minimized evidence-backed drafts "
     "and exact-version reuse feedback need authority. Accepted submission OR correction "
@@ -41,7 +50,9 @@ def response(payload, stop_enabled=False):
         return None
     event = payload.get("hook_event_name")
     if event in ("SessionStart", "UserPromptSubmit"):
-        return {"hookSpecificOutput": {"hookEventName": event, "additionalContext": REMINDER}}
+        # Full rules once per session; a short retrieve/learn nudge on every later prompt.
+        text = REMINDER if event == "SessionStart" else NUDGE
+        return {"hookSpecificOutput": {"hookEventName": event, "additionalContext": text}}
     # A nonblocking systemMessage does not force another turn. Reject non-false
     # recursion guards (including missing/unknown values), rather than guessing.
     if event == "Stop" and stop_enabled and payload.get("stop_hook_active") is False:

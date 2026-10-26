@@ -501,7 +501,7 @@
       "id": "correction-separate-authorized-review-publication",
       "host_context": {"saved_version": 2, "standing_consent": true, "live_acl": true, "exact_policy_version_state": true, "publication_requested": false},
       "expected_behavior": "Separately assess persisted v2 evidence under live guards before parent approval; publication stays separately authorized and historical access keeps existing eligibility",
-      "protocol_checks": ["Review saved exact version/state and complete persisted evidence", "existing supported persisted standing review consent", "historical project-version access follows existing eligibility guards", "New approved collection-version publication requires separate authorization"]
+      "protocol_checks": ["Review saved exact version/state and complete persisted evidence", "supported, persisted enabled consent", "historical project-version access follows existing eligibility guards", "New approved collection-version publication requires separate authorization"]
     }
   ]
 }

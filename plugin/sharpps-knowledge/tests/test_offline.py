@@ -15,6 +15,10 @@ ROOT = BASE.parents[1]
 HELPER = BASE / "hooks/context.py"
 
 
+def plugin_version():
+    return json.loads((BASE / ".claude-plugin/plugin.json").read_text())["version"]
+
+
 class HookTests(unittest.TestCase):
     def run_hook(self, data, enabled=False):
         env = dict(os.environ)
@@ -85,7 +89,7 @@ class PackageTests(unittest.TestCase):
             folder = BASE / f".{provider}-plugin"
             manifest = json.loads((folder / "plugin.json").read_text())
             self.assertEqual(manifest["name"], "sharpps-knowledge")
-            self.assertEqual(manifest["version"], "0.1.6")
+            self.assertEqual(manifest["version"], plugin_version())
             self.assertEqual(manifest["skills"], "./skills/")
             self.assertEqual(list(folder.iterdir()), [folder / "plugin.json"])
             self.assertNotIn("mcpServers", manifest)
@@ -98,7 +102,7 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(len(matches), 1)
             self.assertEqual(matches[0]["source"], source)
             if relative == ".claude-plugin/marketplace.json":
-                self.assertEqual(matches[0]["version"], "0.1.6")
+                self.assertEqual(matches[0]["version"], plugin_version())
         entries = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text())["plugins"]
         matches = [e for e in entries if e["name"] == "sharpps-knowledge"]
         self.assertEqual(len(matches), 1)
@@ -125,8 +129,9 @@ class PackageTests(unittest.TestCase):
     def test_traditional_hooks_and_readonly_agents(self):
         manifest = json.loads((BASE / ".claude-plugin/plugin.json").read_text())
         self.assertEqual(set(manifest["agents"]),
-                         {"./agents/knowledge-extractor.md", "./agents/knowledge-reviewer.md"})
-        self.assertEqual(len(manifest["agents"]), 2)
+                         {"./agents/knowledge-extractor.md", "./agents/knowledge-reviewer.md",
+                          "./agents/knowledge-retriever.md"})
+        self.assertEqual(len(manifest["agents"]), 3)
         self.assertEqual(manifest["hooks"], "./hooks/knowledge-hooks.json")
         self.assertFalse((BASE / "hooks/hooks.json").exists())
         hooks = json.loads((BASE / manifest["hooks"]).read_text())["hooks"]
@@ -217,7 +222,7 @@ class PackageTests(unittest.TestCase):
 
     def test_readme_version_and_remote_identity_contract(self):
         text = (BASE / "README.md").read_text()
-        self.assertTrue(text.startswith("# sharpps-knowledge 0.1.6\n"))
+        self.assertTrue(text.startswith("# sharpps-knowledge %s\n" % plugin_version()))
         for phrase in ("Remote OAuth operations are attributed to the account connected",
                        "authenticated tenant/object principal", "same principal",
                        "Local/stdio UID identity and remote Entra identity",
@@ -260,7 +265,7 @@ class SkillOnlyDistributionTests(unittest.TestCase):
     def test_all_skills_execute_without_external_loading_prerequisites(self):
         for name in ("review", "learn", "setup", "retrieve", "status"):
             text = self.skill(name)
-            self.require(text, ("self-contained", "skill-only hosts", "Claude web",
+            self.require(text, ("self-contained", "skill-only hosts",
                                 "optional explanation only", "not loading prerequisites",
                                 "actual", "schemas", "connection identity"))
             # Detect the old mandatory protocol/role-source blockers, not optional links.
@@ -599,14 +604,14 @@ class CorrectionWorkflowTests(unittest.TestCase):
                                     "SAME MODEL / SAME CONTEXT", "weaker", "Delegation denial",
                                     "DISTINCT", "pending candidate", "current_version",
                                     "default/shared", "project-version access",
-                                    "standing review consent", "operator request",
+                                    "standing consent", "operator request",
                                     "policy revision", "publication",
                                     "ten", "unattended worker"))
                 self.assertNotRegex(text, r"(?i)(?:must|required to) (?:read|load)[^\n]*(?:agents/|references/)")
             review = (root / "skills/knowledge-review/SKILL.md").read_text()
             self.require(review, ("unsaved draft has no candidate review-state revision",
                                   "complete persisted evidence", "grant no approval",
-                                  "Never invent consent", "knowledge_auto_review",
+                                  "is not consent", "knowledge_auto_review",
                                   "Never use manual review to emulate standing consent"))
 
     def test_optional_role_correction_body_parity(self):

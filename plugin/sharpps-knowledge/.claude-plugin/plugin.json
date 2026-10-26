@@ -1,6 +1,6 @@
 {
   "name": "sharpps-knowledge",
-  "version": "1.2.9",
+  "version": "1.3.0",
   "description": "Evidence-backed Knowledge MCP retrieval, draft extraction and separately guarded review using already host-exposed tools.",
   "author": {
     "name": "SharpPS"
@@ -9,7 +9,8 @@
   "skills": "./skills/",
   "agents": [
     "./agents/knowledge-extractor.md",
-    "./agents/knowledge-reviewer.md"
+    "./agents/knowledge-reviewer.md",
+    "./agents/knowledge-retriever.md"
   ],
   "hooks": "./hooks/knowledge-hooks.json"
 }
