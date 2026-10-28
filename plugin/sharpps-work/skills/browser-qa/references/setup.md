@@ -15,6 +15,13 @@ npm install -g @playwright/cli@latest
 playwright-cli --help
 ```
 
+`-g` installs the CLI for every project on the machine (a global change, so ask first).
+It is a shell command, not an MCP server, so nothing needs registering in any agent's
+config; every host that can run shell commands can use it. For an MCP-style setup use
+Playwright MCP instead (`npx @playwright/mcp@latest`, registered like the
+Chrome DevTools server in the `browser-debug` skill's setup reference), but the CLI
+is the lighter option for coding agents.
+
 Without a global install: `npx @playwright/cli@latest --help`; substitute that for
 `playwright-cli` in every command. Pin a version for reproducible QA runs.
 
