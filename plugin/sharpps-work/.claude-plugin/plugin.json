@@ -1,8 +1,8 @@
 {
   "name": "sharpps-work",
   "displayName": "SharpPS for Work",
-  "version": "1.3.0",
-  "description": "Office and documentation tooling for SharpPS: headless screenshots of authenticated apps (including multi-tenant/local domains), OpenXML Word (.docx) via python-docx, codebase-memory-mcp knowledge graphs, and short Findings/Feedback/Conclusion docs.",
+  "version": "1.3.1",
+  "description": "Office and documentation tooling for SharpPS: headless screenshots of authenticated apps (including multi-tenant/local domains), OpenXML Word (.docx) via python-docx, codebase-memory-mcp knowledge graphs, short Findings/Feedback/Conclusion docs, Chrome DevTools MCP page debugging, and Playwright CLI QA testing.",
   "author": {
     "name": "SharpPS"
   },
