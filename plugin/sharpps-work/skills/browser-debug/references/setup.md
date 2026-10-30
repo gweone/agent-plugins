@@ -103,6 +103,7 @@ change between versions.
 | `--memoryDebugging` | Heap snapshot tools. |
 | `--no-performance-crux` | Don't send URLs to the CrUX API for field data. |
 | `--no-usage-statistics` | Opt out of usage statistics (on by default). |
+| `--acceptInsecureCerts` | Ignore self-signed/expired certificate errors in the browser the server launches. Test profiles only; see [self-signed certificates](#self-signed-certificates). |
 
 Defaults to know: a persistent profile is reused between runs. Use `--isolated` unless
 you need an existing login.
@@ -163,6 +164,23 @@ Config changes don't affect a running session. If `list_pages` shows only
 `about:blank` while the user expects their tabs, the old server is still running. Check
 its args (Windows: `Get-CimInstance Win32_Process | ? CommandLine -match 'chrome-devtools-mcp'`;
 elsewhere `ps aux | grep chrome-devtools-mcp`) and ask the user to restart the client.
+
+## Self-signed certificates
+
+Internal or staging hosts often use a self-signed certificate, so the first visit shows
+Chrome's "Your connection is not private" page (`NET::ERR_CERT_AUTHORITY_INVALID`).
+
+- **Attached Chrome (`--autoConnect`, `--browserUrl`):** click through it the way the
+  user does. `take_snapshot` on the warning page, click **Advanced**, then
+  **Proceed to <host> (unsafe)**, re-snapshot and continue. Chrome remembers the
+  exception for that host until it restarts, so expect the prompt again after a restart.
+  Do this only for hosts the user named as their own self-signed servers; on any other
+  site, stop and report the certificate error instead.
+- **Launched browser (isolated/default):** add `--acceptInsecureCerts` to the args and
+  restart the client. It disables certificate checks for every site in that browser, so
+  keep it to `--isolated` test setups.
+- **Cleanest fix:** import the server's certificate (or its CA) into the OS trust store;
+  the prompt disappears and checks stay on for everything else.
 
 ## Linux / headless hosts
 
