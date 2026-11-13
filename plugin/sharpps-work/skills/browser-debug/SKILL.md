@@ -54,4 +54,15 @@ broken or slow; use [browser-qa](../browser-qa/SKILL.md) to assert that it works
   existing-Chrome (`--autoConnect`) vs. dedicated debug Chrome, tab selection, verifying
   the running mode, connection troubleshooting.
 - [Debugging playbook](references/debugging-playbook.md): symptom → tool mapping for
-  console, network, CSS, performance, Lighthouse, memory, and cookies.
+  console, network, CSS, performance, Lighthouse, memory, and cookies. Start here, then
+  open the topic reference that fits:
+  - [Accessibility](references/accessibility.md): Lighthouse a11y, a11y tree, keyboard
+    focus, tap targets, contrast, document-level checks.
+  - [Performance and LCP](references/performance-lcp.md): trace, LCP subparts, element
+    and waterfall checks, fixes by bottleneck, throttled verification.
+  - [Cookies and sessions](references/cookies-and-sessions.md): 401/403 and login
+    redirects, HttpOnly, SameSite/CHIPS, consent-banner conformance, isolated contexts.
+  - [Memory leaks](references/memory-leaks.md): heap snapshot capture, compare, retainers,
+    common causes (needs `--memoryDebugging`).
+  - [DevTools UI](references/devtools-ui.md): open/reveal panels, read the user's
+    selection, handle DevTools comment threads (needs `--devtools-comments`).

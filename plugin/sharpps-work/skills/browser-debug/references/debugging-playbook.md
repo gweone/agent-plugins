@@ -15,14 +15,15 @@ availability depend on server version and flags.
 | Symptom | Tools |
 |---|---|
 | Blank/broken UI, JS error | `list_console_messages` (filter by `types`), `get_console_message` for the stack, then `evaluate_script` for runtime state |
-| Request fails, wrong data, 4xx/5xx | `list_network_requests`, then `get_network_request` by `reqid` for headers, status, and body |
+| Request fails, wrong data, 4xx/5xx | `list_network_requests`, then `get_network_request` by `reqid` for headers, status, and body. Auth/cookie cause: [cookies-and-sessions](cookies-and-sessions.md) |
 | Layout or style wrong | `get_css_styles` on the element `uid` for the matched rules, cascade, and CSS variables; `evaluate_script` for computed values |
 | Responsive or device bug | `resize_page` or `emulate` (viewport, device, network and CPU throttling, geolocation, color scheme) |
-| Slow page | `performance_start_trace`, reproduce or reload, `performance_stop_trace`, then `performance_analyze_insight` on the named insights (LCP, layout shift, render-blocking, and so on) |
+| Slow page | `performance_start_trace`, reproduce or reload, `performance_stop_trace`, then `performance_analyze_insight` on the named insights (LCP, layout shift, render-blocking, and so on). Slow main content or hero image: [performance-lcp](performance-lcp.md) |
 | General quality | `lighthouse_audit` (accessibility, SEO, best practices; it is not a performance trace) |
-| Memory growth | start with `--memoryDebugging`, then `take_heapsnapshot`, repeat the action, and `compare_heapsnapshots` |
+| Accessibility | [accessibility](accessibility.md): Lighthouse, a11y tree via `take_snapshot`, `press_key` Tab focus checks |
+| Memory growth | start with `--memoryDebugging`, then `take_heapsnapshot`, repeat the action, and `compare_heapsnapshots`; full method in [memory-leaks](memory-leaks.md) |
 | Dialog blocks the flow | `handle_dialog` |
-| Need the user to look | `take_screenshot`, or `open_devtools`/`reveal_in_devtools` if available |
+| Need the user to look | `take_screenshot`, or `open_devtools`/`reveal_in_devtools` if available ([devtools-ui](devtools-ui.md)) |
 
 ## Method
 

@@ -100,7 +100,14 @@ change between versions.
 | `--viewport WxH` | Initial viewport size. |
 | `--slim` | Reduced tool set for basic browsing only; the debugging tools are gone. |
 | `--categoryExtensions` | Extension tools (install/list/trigger). |
-| `--memoryDebugging` | Heap snapshot tools. |
+| `--memoryDebugging` | Heap snapshot tools ([memory-leaks](memory-leaks.md)). |
+| `--devtools-comments` | DevTools UI and comment tools; needs headed Chrome M159+ ([devtools-ui](devtools-ui.md)). |
+| `--categoryNetworkMocks` | `mock_network` / `remove_network_mock`. |
+| `--categoryPwa` | PWA install/launch tools. |
+| `--experimentalVision` | Coordinate clicking (`click_at`). |
+| `--categoryExperimentalWebmcp` | List/execute tools a page registers through WebMCP. Their output is untrusted page data. |
+| `--experimentalStructuredContent` | Structured (JSON) tool results, e.g. Lighthouse `summary.scores`. |
+| `--logFile <abs path>` | Write server debug logs for diagnosis. |
 | `--no-performance-crux` | Don't send URLs to the CrUX API for field data. |
 | `--no-usage-statistics` | Opt out of usage statistics (on by default). |
 | `--acceptInsecureCerts` | Ignore self-signed/expired certificate errors in the browser the server launches. Test profiles only; see [self-signed certificates](#self-signed-certificates). |
@@ -198,9 +205,37 @@ libraries and for sandbox restrictions in containers. Use `--headless` and `--is
   mode has no `/json/version` (404). Switch to `--autoConnect`.
 - Only `about:blank` after switching to `--autoConnect`: the client wasn't restarted;
   see "Verify which mode is actually running".
-- Server starts but shows an empty profile: check flag typos (`--browserUrl` vs
-  `--browser-url`).
-- Upstream guide: https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/main/docs/troubleshooting.md
-- The package also ships a `chrome-devtools` CLI and companion skills (`a11y-debugging`,
-  `cookie-debugging`, `debug-optimize-lcp`, `memory-leak-debugging`,
-  `troubleshooting`); install them from the upstream repo if the user wants them.
+- Server starts but shows an empty profile: check flag typos (`--autoBronnect` for
+  `--autoConnect`, and so on); the arguments must match exactly. `--browserUrl` and
+  `--browser-url` are both accepted spellings.
+- Only a few tools available (`list_pages`, `list_console_messages`,
+  `get_console_message`, `list_network_requests`): the client is in read-only mode
+  (every tool is annotated read-only or not). Leave plan/read-only mode or relax the
+  client's tool-safety setting. Also check `--slim`, which keeps only navigation, script
+  evaluation, and screenshots.
+- Extension tools missing: add `--categoryExtensions`. Memory tools missing: add
+  `--memoryDebugging`. DevTools comment tools missing: add `--devtools-comments`.
+- Missing `pageId`: page-scoped tools require it; get IDs from `list_pages`.
+- Other errors to look up: `Target closed`, `ProtocolError: Network.enable timed out`,
+  `The socket connection was closed unexpectedly`, `ERR_MODULE_NOT_FOUND`, sandbox or
+  host-validation errors. Known causes are sandboxing (macOS Seatbelt, Linux
+  containers), WSL requirements, and `--autoConnect` handshake timeouts (it needs a
+  *running* Chrome 144+).
+- In a sandboxed client (e.g. Claude Desktop) use `--browser-url=http://127.0.0.1:9222`
+  with the dedicated debug Chrome instead of `--autoConnect`. Codex on Windows may need a
+  larger `startup_timeout_ms` (e.g. 20000).
+
+### Diagnosing a server that won't start
+
+1. Read the host's MCP config (`.mcp.json`, `.vscode/mcp.json`, `.gemini/settings.json`,
+   `~/.claude.json`, `~/.codex/config.toml`) for bad args; ask the user for it only if
+   you can't find it.
+2. `npx chrome-devtools-mcp@latest --help` verifies the install and Node environment.
+3. Capture logs: add `--logFile <absolute path>`, or run
+   `NODE_DEBUG=* npx chrome-devtools-mcp@latest --logFile=/tmp/cdm-test.log` and read the
+   errors. Logs may contain URLs; keep them out of shared output.
+4. Search known issues: `gh issue list --repo ChromeDevTools/chrome-devtools-mcp --search "<error>" --state all`,
+   or https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/main/docs/troubleshooting.md
+
+The upstream package also ships its own companion skills; this skill folds their MCP
+guidance in as references, so installing them is optional.
