@@ -1,4 +1,4 @@
-# SSH transport, keys, and jump hosts
+# SSH transport, authentication, and jump hosts
 
 `shell_session_start`'s `mode` selects the transport. Call `shell_session_capabilities` to see
 every mode currently registered on this server (today: `local_pty`, the default, and `ssh`) along
@@ -59,3 +59,17 @@ across a multi-step task, especially over a slow or multi-hop connection.
 
 Before stopping a misbehaving shared session, check its state and context and resolve any
 in-flight work with the user. Do not terminate another caller's work silently.
+
+## Typical SSH lifecycle
+
+1. Confirm persistence, exact target, authentication, and allowed jump hosts with the user.
+2. Check capabilities and list existing sessions; inspect reusable state before input.
+3. Start once with `shell_session_start(mode="ssh", host="<explicit host>", ...)`.
+4. Use write/read or screen on that session_id; note meaningful intent before blocking steps.
+5. On any later resume, inspect list/get, read_context (small limit), and screen/read before input.
+6. Call `shell_session_stop(session_id)` for sessions you started when genuinely done,
+   unless the user requested keeping them alive.
+   For intentional handoff, report session_id and current state. Stop does not delete context.
+
+Shared consent, read-before-write, context-note, and housekeeping rules:
+[lifecycle and context](lifecycle-and-context.md).

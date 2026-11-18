@@ -1,4 +1,7 @@
-# Local persistent session lifecycle and context
+# Persistent session lifecycle and context
+
+Shared by both transports (`local_pty` and `ssh`). Transport-specific start details live in
+[local pty](local-pty.md) and [SSH transport and authentication](ssh-transport-and-authentication.md).
 
 `shell_session_*` gives you a **persistent, shared, ownerless** terminal (backed by tmux) that
 survives the tool-call boundary, survives the MCP server restarting, and can be picked up by any
@@ -24,26 +27,28 @@ knowing.
 
 ## Rule 2 — Always pass explicit connection details on start
 
-For `mode="local_pty"`: always pass an explicit `workspace` — it silently falls back to the
-server's home directory if omitted. Don't rely on that default; pass the actual working directory
-the command needs (a repo checkout, a project root, etc.). Check `shell_workspace_info` first if
-you're unsure what the default would even be, but the fix is always the same: pass `workspace`
-explicitly, every time, no exceptions.
+Call `shell_session_capabilities` to discover current modes and select `mode` explicitly instead
+of relying on the default. Then pass the transport's required details every time:
 
-`command` is required for `mode="local_pty"`. Set `shell` only when overriding shell
-auto-detection. Call `shell_session_capabilities` to discover current modes; this workflow
-uses the local transport explicitly rather than relying on its being the default.
+- `local_pty`: `command` plus an explicit `workspace` — see [local pty](local-pty.md).
+- `ssh`: an explicit authorized `host`, plus `username`/`port` when not default — see
+  [SSH transport and authentication](ssh-transport-and-authentication.md).
+
+A session with implicit or guessed connection details is one the next caller can't fully trust:
+they can't tell from `shell_session_list` alone whether it's running where it's supposed to be.
 
 ## Start once and reuse deliberately
 
-Every `shell_session_start` creates a brand-new pty, never an attachment. For a multi-command
-local task, start a persistent shell as the required `command` and then use writes to its
-`session_id`. Never omit the required local command by copying the SSH interactive-shell pattern.
-Before starting, inspect `shell_session_list` for an existing session covering this workspace/task.
-Inspect status, pane, and context before reuse. One target/task, one authoritative live session:
-if it is hung, garbled, in the wrong context, or otherwise unusable, resolve ownership/in-flight
-work before an approved stop, then start a replacement. Do not silently kill another caller's work
-or leave a bad session running while opening a second one.
+Every `shell_session_start` creates a brand-new pty (or, for `mode="ssh"`, a fresh SSH connection,
+and with `via` a full multi-hop tunnel chain rebuilt from scratch); it never attaches to anything
+existing. Before starting, inspect `shell_session_list` for an existing session covering this
+target/task, and inspect its status, pane, and context before reuse.
+
+One target/task, one authoritative live session. If it is hung, garbled, in the wrong context, or
+otherwise unusable, resolve ownership and in-flight work with the user before an approved stop,
+then start a replacement. Do not silently kill another caller's work, and never leave a bad
+session running while opening a second one "to be safe" — that leaves two live sessions with no
+way to tell which is authoritative.
 
 ## Rule 3 — Once you're in a session, stay in the shell_session_* tools
 
@@ -62,7 +67,8 @@ Use `shell_session_read` for line-oriented output (cheap, only what's new since 
 that `session_id`). Switch to `shell_session_screen` specifically for full-screen TUIs (a live
 `claude` session, vim, htop, any ink/curses UI, including over SSH) where raw escape codes in
 `shell_session_read`'s output are unreadable — `shell_session_screen` renders the resolved current
-pane instead. Don't call it on every poll; it's the most expensive call in this tool family.
+pane instead. Don't call it on every poll; it's the most expensive call in this tool family. The
+exception: when a session looks stuck or silent, call it first.
 
 ## Rule 4 — Resuming or attaching: check state before you type
 
@@ -75,7 +81,12 @@ checking. A session's `command`, `mode`, `workspace`/`host`, `pid`, `alive`, and
 fields, plus whatever the pane currently shows and whatever context notes exist, are all you have
 to go on, so read all of it before typing anything. Writing blind into a session you didn't just
 create risks answering the wrong prompt, repeating a step that already happened, or stepping on
-another caller's in-flight action.
+another caller's in-flight action. Read current output before every later write too; do not
+answer an unseen or stale prompt.
+
+A session is ONE terminal, like an SSH window left open: writes run strictly in order, never in
+parallel. Send one command, wait until it has actually finished, then send the next. Empty output
+usually means "queued, not started yet", not "broken".
 
 ## Context notes — when to write one, kept compact
 
@@ -97,7 +108,7 @@ appended to, keeps both the write and the eventual read cheap.
 Write a note when, and only when, one of these is true — this is a judgment call, not a checklist
 to run every turn:
 
-- **Right after starting** a session whose purpose won't be obvious from `command`/`workspace`
+- **Right after starting** a session whose purpose won't be obvious from `command`/`workspace`/`host`
   alone (a multi-step task, a long-running job).
 - **Right before a risky or blocking step** (sudo, a restart, a step likely to hang or fail) — so
   a useful note exists *before* getting stuck, not only in hindsight after.
@@ -122,8 +133,8 @@ where needed. For an authorized elevated command in an existing session:
 
 For an ordinary approved non-session task, use the appropriate execution tool
 (`shell_execute(sudo=true)` where supported), not a forced persistent session.
-SSH password auth (`auth_method="password"`) is unsupported: use `"none"` (default
-identity/agent) or `"private_key"`; never type SSH credentials into a terminal.
+SSH password auth (`auth_method="password"`) is unsupported, and SSH credentials are never typed
+into a terminal — see [SSH transport and authentication](ssh-transport-and-authentication.md).
 
 ## Housekeeping
 
@@ -145,6 +156,7 @@ identity/agent) or `"private_key"`; never type SSH credentials into a terminal.
 - **`shell_session_stop`** — kills the session and frees its resources. Stop sessions you started
   once the task is genuinely done rather than leaving them running indefinitely. Does NOT clear its
   context notes -- use `shell_session_clear_context` separately if those are no longer needed either.
+  Last resort for a quiet session: check `shell_session_screen` and independent system state first.
 - **`shell_session_capabilities`** — lists every registered transport mode and its supported auth
   methods/requirements. Call this to discover valid `mode` values before starting a session.
 - **`shell_claude_sessions_list`** — read-only listing of a project's `claude --resume` picker
@@ -152,13 +164,14 @@ identity/agent) or `"private_key"`; never type SSH credentials into a terminal.
   attach to via a session before you drive the picker yourself; it never selects or resumes
   anything on its own.
 
-## Typical local lifecycle
+## Typical lifecycle
 
-1. Confirm persistence is requested, then list sessions and discover capabilities.
-2. Inspect any reusable session before input; otherwise start explicitly:
-   `shell_session_start(mode="local_pty", command, workspace="<explicit path>")`.
+1. Confirm persistence is requested (and, for SSH, the exact target, authentication, and allowed
+   jump hosts), then list sessions and discover capabilities.
+2. Inspect any reusable session before input; otherwise start explicitly with the transport's
+   call ([local](local-pty.md#typical-local-lifecycle), [SSH](ssh-transport-and-authentication.md#typical-ssh-lifecycle)).
 3. Drive the session with write/read or screen; record only useful compact context.
 4. On later resume, inspect list/get, read_context (small limit), and screen/read before writing.
 5. Call `shell_session_stop(session_id)` for sessions you started when genuinely finished,
-   unless the user requested keeping them alive.
-   Report the session_id and current state for an intentional handoff. Context persists after stop.
+   unless the user requested keeping them alive. For an intentional handoff, report the
+   session_id and current state. Context persists after stop.

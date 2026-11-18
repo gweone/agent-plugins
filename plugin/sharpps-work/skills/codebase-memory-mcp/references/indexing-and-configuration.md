@@ -50,18 +50,13 @@ this completes in ~3 minutes; expect proportionally less for a single service/mo
 
 Those first-run timings are an upstream example, not a performance promise.
 
-## CLI equivalents (for scripting, no daemon involved)
+## CLI equivalents
 
-```bash
-codebase-memory-mcp cli index_repository --repo-path /path/to/repo
-codebase-memory-mcp cli list_projects
-codebase-memory-mcp cli search_graph --project my-project --name-pattern '.*Handler.*' --label Function
-codebase-memory-mcp cli trace_path --project my-project --function-name Search --direction both
-codebase-memory-mcp cli query_graph --project my-project --query 'MATCH (f:Function) RETURN f.name LIMIT 5'
-```
-
-`cli` mode neither starts nor connects to the coordination daemon and leaves no standing process
-behind — use it when you want a one-shot answer without the MCP/agent round-trip.
+The query command forms are in
+[graph analysis](graph-analysis.md#cli-equivalents-for-scripting-no-daemon-involved).
+`cli` mode neither starts nor connects to the coordination daemon and leaves no standing
+process behind, so it suits one-shot scripted work. `index_repository` and `delete_project`
+still change state and need the approval described above.
 
 ## Configuration
 
@@ -89,16 +84,8 @@ Custom extension mapping per-repo via `.codebase-memory.json`:
 
 ## Language coverage
 
-158 languages via vendored tree-sitter grammars, in quality tiers — check before relying on
-results for an unusual language:
-- **Excellent (≥90%)**: Lua, Kotlin, C++, Perl, Objective-C, Groovy, C, Bash, Zig, Swift, CSS,
-  YAML, TOML, HTML, SCSS, HCL, Dockerfile
-- **Good (75-89%)**: Python, TypeScript, TSX, Go, Rust, Java, R, Dart, JavaScript, Erlang, Elixir,
-  Scala, Ruby, PHP, C#, SQL
-- **Functional (<75%)**: OCaml, Haskell
-
-Full Hybrid-LSP semantic resolution (not just AST) currently covers: Python, TypeScript/
-JavaScript/JSX/TSX, PHP, C#, Go, C, C++, Java, Kotlin, Rust, Perl.
+Tier list and semantic-resolution coverage: [graph analysis](graph-analysis.md#language-coverage).
+Check it before indexing an unusual language or framework.
 
 ## Team-shared graph artifact
 
