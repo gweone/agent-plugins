@@ -1,13 +1,13 @@
 ---
 name: browser-recording
-description: Record a Jam of a web page through the Jam Chrome extension and verify it. The agent starts the recording via Chrome MCP, the user picks the screen, the agent stops it and submits the form on the active tab, then manages the Jam via Jam MCP or the dashboard. Use to record a bug or demo, get a Jam link, or check what a Jam captured. Requires Chrome MCP and a signed-in Jam extension; not for browser inspection without a recording (browser-debug) or repeatable tests (browser-qa).
+description: Record a Jam of a web page through the Jam Chrome extension and verify it. The agent starts the recording via Chrome MCP, the user picks the screen, the agent stops it and submits the form on the active tab, then manages the Jam via Jam MCP or the dashboard. Use to record a bug or demo, get a Jam link, or check what a Jam captured. Requires Chrome access to the user's Chrome (connector MCP, attached local MCP, or CLI; resolved through browser-debug) and a signed-in Jam extension; not for browser inspection without a recording (browser-debug) or repeatable tests (browser-qa).
 ---
 
 # Jam browser recording
 
 Produce a Jam that provably captured the intended page, then manage and report it. Detect the available tools at runtime; never assume a connector exists because this skill is installed.
 
-For browser inspection without a recording use [browser-debug](../browser-debug/SKILL.md); for repeatable test flows use [browser-qa](../browser-qa/SKILL.md).
+Resolve how to reach Chrome (connector MCP, local MCP, or CLI) with [browser-debug's resolve-mcp](../browser-debug/references/resolve-mcp.md) instead of keeping separate setup steps here. For browser inspection without a recording use [browser-debug](../browser-debug/SKILL.md); for repeatable test flows use [browser-qa](../browser-qa/SKILL.md).
 
 ## Prerequisites
 
@@ -15,10 +15,10 @@ For browser inspection without a recording use [browser-debug](../browser-debug/
 |---|---|---|
 | Jam Chrome extension installed in the user's Chrome | `list_pages` shows the Jam service worker `chrome-extension://iohjgamcilhbgmhbnllfolmkmmekfmci/sw.js` | Ask the user to install Jam from the Chrome Web Store. |
 | User signed in to Jam in that extension | Jam service-worker storage shows a user (`$jam-memoized-store.user`) and `auth.hasAccessToJamSite: true` | Ask the user to sign in through the Jam extension. |
-| Chrome MCP connected to that Chrome (for example SharpPS Chrome) | `list_pages`, `trigger_extension_action`, `click`, `type_text`, `evaluate_script` are available and `list_pages` succeeds | Ask the user to connect Chrome MCP. |
+| Chrome access to that Chrome, resolved per [resolve-mcp](../browser-debug/references/resolve-mcp.md): the connector MCP (for example SharpPS Chrome), a local MCP attached with `--autoConnect`, or the CLI | `list_pages`, `trigger_extension_action`, `click`, `type_text`, `evaluate_script` are available (as MCP tools or `chrome-devtools` commands) and `list_pages` succeeds | Ask the user to connect Chrome MCP or set up another method. |
 | Jam MCP (optional) | `searchJams`, `getDetails`, `updateJam` are available | Manage the Jam in the Jam dashboard with the user. |
 
-Chrome MCP, the Jam extension and a signed-in Jam user are required. If any is missing, stop and ask the user to connect, install or sign in. Never fall back to a Recording Link or another recording method.
+Chrome access to the user's real Chrome (any method that resolve-mcp lists), the Jam extension and a signed-in Jam user are required. An isolated or launched browser has no Jam extension and does not qualify. If any is missing, stop and ask the user to connect, install or sign in. Never fall back to a Recording Link or another recording method.
 
 ## Flow
 
@@ -46,6 +46,7 @@ Step-by-step commands, state keys and failure signals: [extension recording](ref
 ## Detailed guidance
 
 - [Extension recording](references/extension-recording.md): the four phases step by step, Jam state keys, form location, failure signals.
+- [Resolve Chrome access](../browser-debug/references/resolve-mcp.md) (in browser-debug): connector MCP vs. local MCP vs. CLI, detection and verification.
 - [Setup](references/setup.md): prerequisites, capability detection, Jam MCP and dashboard, domain verification.
 - [Retrieval and analysis](references/retrieval-and-analysis.md): finding the Jam, readiness, evidence, summary template.
 - [Open decisions](references/open-decisions.md): defaults and later phases.

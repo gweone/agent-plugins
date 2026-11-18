@@ -1,6 +1,6 @@
 # Open decisions and later phases
 
-This skill records only through the Jam Chrome extension driven by Chrome MCP. Chrome MCP, the Jam extension and a signed-in Jam user are required; Jam MCP is optional for managing the result.
+This skill records only through the Jam Chrome extension driven by Chrome MCP. Chrome access to the user's Chrome (resolved per [resolve-mcp](../../browser-debug/references/resolve-mcp.md)), the Jam extension and a signed-in Jam user are required; Jam MCP is optional for managing the result.
 
 | Question | Default | Change when |
 |---|---|---|

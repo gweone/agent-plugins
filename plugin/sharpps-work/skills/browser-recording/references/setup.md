@@ -6,13 +6,13 @@ All prerequisites below are required except Jam MCP. If a required item is missi
 
 | Requirement | Owner | How the agent checks |
 |---|---|---|
-| Chrome MCP (for example SharpPS Chrome) connected to the user's real Chrome | User / administrator | `list_pages`, `trigger_extension_action`, `click`, `type_text`, `wait_for` and `evaluate_script` (service worker) are exposed in this session and `list_pages` succeeds. |
+| Chrome access to the user's real Chrome: connector MCP (for example SharpPS Chrome), a local MCP attached with `--autoConnect`, or the CLI; resolve it per [resolve-mcp](../../browser-debug/references/resolve-mcp.md) | User / administrator | `list_pages`, `trigger_extension_action`, `click`, `type_text`, `wait_for` and `evaluate_script` (service worker) are exposed in this session and `list_pages` succeeds. |
 | Jam Chrome extension installed in that Chrome | User | `list_pages` lists `chrome-extension://iohjgamcilhbgmhbnllfolmkmmekfmci/sw.js`, and `trigger_extension_action` offers that id. |
 | User signed in to the right Jam workspace in that extension | User | In the Jam service worker, `chrome.storage.local` has `$jam-memoized-store` with a `user`, and `jam-global-minimal-shared-store-4` has `auth.hasAccessToJamSite: true`. |
 | Jam MCP (optional) | Administrator | `searchJams`, `getDetails`, `listFolders`, `updateJam` are exposed. Without them, the user manages the Jam in the dashboard. |
 | Target domain connected and verified in Jam (optional) | User / administrator | Needed only for console/network logs; see [Jam's custom recording domain guide](https://jam.dev/docs/custom-recording-domain). |
 
-A skill being installed does not prove any tool is connected. Detect tools at runtime; do not infer them from documentation or prior sessions.
+A skill being installed does not prove any tool is connected. Detect tools at runtime; do not infer them from documentation or prior sessions. Which Chrome access method is available, and how to choose between them, is decided in [resolve-mcp](../../browser-debug/references/resolve-mcp.md); this skill needs the one that reaches the user's real Chrome.
 
 ## Capability use
 

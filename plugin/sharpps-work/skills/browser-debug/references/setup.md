@@ -1,7 +1,11 @@
-# Setup: Chrome DevTools MCP
+# Setup: local Chrome DevTools MCP
+
+This file covers the **local MCP** method only. To decide between the connector MCP, a
+local MCP and the CLI, start at [resolve-mcp](resolve-mcp.md); for the CLI see [cli](cli.md).
 
 Check first: if tools such as `list_pages`, `take_snapshot`, and
-`list_console_messages` are already in the tool list, setup is done. Installing or
+`list_console_messages` are already in the tool list (from a connector or an earlier
+registration), setup is done. Installing or
 registering a server changes the user's agent configuration; ask before doing it.
 
 ## Requirements
