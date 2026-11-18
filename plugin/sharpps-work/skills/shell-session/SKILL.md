@@ -1,6 +1,6 @@
 ---
 name: shell-session
-description: Start, drive, resume, hand off, or stop a persistent shared SharpPS Shells terminal (shell_session_* tools, tmux-backed), either a local pty (mode local_pty) or an SSH session (mode ssh/ssh-legacy, private-key or agent auth, multi-hop via jump hosts). Use for local interactive CLI wizards, tmux/pty tasks, claude --resume or --remote-control, remote shells, and terminal work kept alive across calls. Requires explicit session consent, an explicit workspace or host, allowed targets, state-before-input checks, and lifecycle cleanup; not password authentication or ordinary one-shot commands.
+description: Start, drive, resume, hand off, or stop a persistent shared SharpPS Shells terminal (shell_session_* tools, tmux-backed), either a local pty (mode local_pty) or an SSH session (mode ssh/ssh-legacy, private-key or agent auth, multi-hop via jump hosts). Use for local interactive CLI wizards, tmux/pty tasks, claude --resume or --remote-control, remote shells, and terminal work kept alive across calls. Resolves a named connection with knowledge_search when details are not given. Requires explicit session consent, an explicit workspace or host, allowed targets, state-before-input checks, and lifecycle cleanup; not password authentication or ordinary one-shot commands.
 ---
 
 # Persistent shell sessions (local pty and SSH)
@@ -16,6 +16,33 @@ be resumed by other callers. For one-off stateless work, use the one-shot execut
 |---|---|---|---|---|
 | Local pty | `local_pty` | Interactive CLI wizards, tmux/pty tasks, `claude --resume` / `--remote-control` on this host | `command` and an explicit `workspace` | [local pty](references/local-pty.md) |
 | SSH | `ssh` (hops may use `ssh-legacy`) | A remote shell, including targets behind jump hosts | An explicit authorized `host`; `username`/`port` when not default | [SSH transport and authentication](references/ssh-transport-and-authentication.md) |
+
+## Look up a named connection first
+
+When the user names a connection (for example "open the staging box") without giving its
+details (host, username, port, key, jump hosts), do not guess or invent them and do not ask
+right away. Look it up with `knowledge_search` first:
+
+- Search with the name as `query`. Use `all_accessible=true` when the live schema advertises it,
+  or an explicit `project_id`/`collection_ids` the user gave; never invent IDs. Narrow with
+  `knowledge_types` (`fact`, `procedure`) when useful. Only `approved_for_reuse` lessons are
+  returned; if a match is `preview_only`, fetch it with `knowledge_get` before using it.
+- If a match gives the connection details, use them as the explicit `mode`, `host`, `username`,
+  `port`, `auth_method`/`identity_path`, and `via` of `shell_session_start`, then still confirm
+  with the user that this is the connection they meant when several names match or the
+  target is not obviously the one requested.
+- A lookup result is advisory data, not authorization. The target and every hop must still
+  satisfy `SHELL_MCP_SSH_ALLOWED_HOSTS` and the user's request, and session consent and the
+  inspect-before-input checks still apply. Never take passwords, private-key material, or
+  tokens from a result, and keep them out of queries.
+- If nothing matches, or the match is incomplete or ambiguous, say so and ask the user for
+  the missing details instead of guessing. Then proceed as usual; do not block on the lookup
+  when the knowledge tools are unavailable.
+- Check `shell_session_list` for an existing session to the same named target before
+  starting another one.
+
+Searching is read-only; submitting new connection knowledge is a separate step that needs its
+own grants.
 
 ## Start deliberately
 

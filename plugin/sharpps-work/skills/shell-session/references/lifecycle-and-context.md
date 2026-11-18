@@ -167,7 +167,8 @@ into a terminal — see [SSH transport and authentication](ssh-transport-and-aut
 ## Typical lifecycle
 
 1. Confirm persistence is requested (and, for SSH, the exact target, authentication, and allowed
-   jump hosts), then list sessions and discover capabilities.
+   jump hosts), then list sessions and discover capabilities If the user gave only a connection name, look it up with
+   `knowledge_search` first (see [SKILL.md](../SKILL.md#look-up-a-named-connection-first)).
 2. Inspect any reusable session before input; otherwise start explicitly with the transport's
    call ([local](local-pty.md#typical-local-lifecycle), [SSH](ssh-transport-and-authentication.md#typical-ssh-lifecycle)).
 3. Drive the session with write/read or screen; record only useful compact context.
