@@ -1,12 +1,12 @@
 ---
 name: browser-debug
-description: Troubleshoot and debug a live web page with Chrome DevTools (chrome-devtools-mcp), reached through a connector Chrome MCP, a local MCP, or the `chrome_cli.sh` CLI wrapper. Also the place other browser-* skills resolve which Chrome access to use. Use for console errors, failing or slow network requests, CSS/layout bugs, performance traces, Lighthouse audits, memory leaks, and cookie/session problems; not for repeatable QA test flows.
+description: Troubleshoot and debug a live web page with Chrome DevTools (chrome-devtools-mcp), reached through a connector Chrome MCP, a local MCP, or the `chrome_cli.sh` CLI wrapper. Also the place other browser-* skills resolve which Chrome access to use. Works on the user's own Chrome; for repeatable tests or documentation screenshots in a fresh, isolated browser use browser-automation. Use for console errors, failing or slow network requests, CSS/layout bugs, performance traces, Lighthouse audits, memory leaks, and cookie/session problems; not for repeatable QA test flows.
 ---
 
 # Browser debugging via Chrome DevTools
 
 Inspect a real Chrome page the way DevTools does. Use this to find *why* something is
-broken or slow; use [browser-qa](../browser-qa/SKILL.md) to assert that it works.
+broken or slow; use [browser-automation](../browser-automation/SKILL.md) to assert that it works.
 
 ## Reaching Chrome: three methods
 
@@ -16,7 +16,7 @@ local MCP whenever it exists**, then the connector, then the CLI.
 
 | Method | Reaches | Use when |
 |---|---|---|
-| Connector Chrome MCP | The user's shared, logged-in Chrome (for example SharpPS Chrome) | No local MCP, or the user chooses it for their session or real browser |
+| Connector Chrome MCP | The user's shared, logged-in Chrome | No local MCP, or the user chooses it for their session or real browser |
 | Local MCP (`chrome-devtools-mcp` over stdio) | Chrome on the agent's host; isolated by default | **Default whenever registered**; public pages, clean profile |
 | CLI (`chrome_cli.sh` wrapper, via a shell) | The same logged-in Chrome as the connector (the active profile) | No MCP tools, or a scripted/batch run that writes files |
 
@@ -76,6 +76,8 @@ file instead of keeping their own steps.
   `browser-*` skills point here.
 - [CLI](references/cli.md): the `chrome_cli.sh` wrapper: what it does, options, command
   shape and cheat sheet, shared-browser and secret rules, troubleshooting.
+- [CLI commands](references/cli-commands.md): every `chrome-devtools` command with its
+  arguments and whether the wrapper supports it.
 - [Setup](references/setup.md): the local MCP: install/register the server, key flags,
   isolated vs. existing-Chrome (`--autoConnect`) vs. dedicated debug Chrome, tab selection,
   verifying the running mode, connection troubleshooting.

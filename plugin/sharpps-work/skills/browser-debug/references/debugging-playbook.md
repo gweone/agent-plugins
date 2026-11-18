@@ -38,7 +38,7 @@ availability depend on server version and flags.
   path, expiry) and the `Set-Cookie`/`Cookie` headers via `get_network_request`.
   Report names and attributes only, never values.
 - **Local virtual hosts**: if the real hostname doesn't resolve here, the browser
-  needs a resolver rule (see the `screen-capture` skill's routing notes) or the server
+  needs a resolver rule (see the `browser-automation` skill's setup reference, local-domain routing) or the server
   started with matching Chrome args; Host-header tricks are unreliable.
 
 ## Output hygiene
@@ -50,4 +50,4 @@ availability depend on server version and flags.
 ## Hand-off to QA
 
 Once the cause is fixed, convert the repro into a regression check with
-[browser-qa](../../browser-qa/SKILL.md) so the bug stays fixed.
+[browser-automation](../../browser-automation/SKILL.md) so the bug stays fixed.

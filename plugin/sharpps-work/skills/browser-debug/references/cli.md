@@ -1,33 +1,33 @@
 # Chrome DevTools via the CLI wrapper
 
-The CLI method is the wrapper `chrome_cli.sh` on the SharpPS cloud host. It runs the
-upstream `chrome-devtools` command against the same Chrome the connector drives: the
-**active profile** chosen on the `/chrome/` dashboard. Use it when no MCP tools are
+The CLI method is the wrapper `chrome_cli.sh`, which is on your `PATH`. It runs the
+upstream `chrome-devtools` command against the **active Chrome profile**, the same browser
+the connector drives. Use it when no MCP tools are
 available, or for a scripted or batch run that writes results to files (see
 [resolve-mcp](resolve-mcp.md) for when to pick it).
 
 Always call the wrapper, never `chrome-devtools` directly: the wrapper resolves the
-profile, the browser endpoint and the daemon for you. In the examples below `chrome_cli.sh`
-stands for `/opt/github/trading-mcp/scripts/chrome_cli.sh`.
+profile, the browser endpoint and the daemon for you. Run it from any directory as
+`chrome_cli.sh`.
 
 ## Check it is available
 
 ```bash
-test -x /opt/github/trading-mcp/scripts/chrome_cli.sh && chrome_cli.sh --info
+command -v chrome_cli.sh && chrome_cli.sh --info
 ```
 
 `--info` prints the active profile, a masked endpoint and the daemon state. If the wrapper
-does not exist (not the SharpPS host), the CLI method is unavailable: say so and offer the
-other methods. Do not improvise by installing or starting the raw CLI yourself.
+is not found, the CLI method is unavailable: say so and offer the other methods. Do not improvise by installing or starting the raw CLI yourself.
 
 ## What the wrapper does
 
 - Every call reads the active profile, resolves the browser endpoint (an SSH read through
   `chrome_remote.sh --print`), and starts or restarts the background daemon only when the
-  profile or the browser ID changed, or the daemon is down. Then it runs your command.
+  profile or the browser ID changed, or the daemon is down or not attached to the current
+  endpoint. It keeps a single daemon and removes strays. Then it runs your command.
 - State (selected page, snapshots, console history) lives in the daemon, so it persists
   between calls while the daemon stays up.
-- Switching the profile on the dashboard is picked up by the next call. No service restart.
+- Switching the active profile is picked up by the next call. No service restart.
 - It always targets the active profile's Chrome: the user's real browser with their
   logins. It cannot give you an isolated or throwaway browser; use the local MCP for that.
 - The daemon runs with the extensions and network-mock categories on, matching the
@@ -76,6 +76,9 @@ after the page changes; re-snapshot before the next action.
 
 ## Command cheat sheet
 
+The table shows the common commands. Every command, its arguments and whether the wrapper
+supports it is in [cli-commands](cli-commands.md).
+
 | Goal | Command |
 |---|---|
 | Navigate | `navigate_page 1 --url "https://example.com"`, `--type reload --ignoreCache true`, `--type back` |
@@ -123,8 +126,9 @@ chrome_cli.sh evaluate_script \
 | Symptom | Check |
 |---|---|
 | `chrome-devtools not found` | The CLI package is missing on the host. Ask the user to install it once (`npm i -g chrome-devtools-mcp@latest`), then retry |
-| `could not resolve the active profile / endpoint` | No active profile on the `/chrome/` dashboard, the SSH tunnel to the workstation is down, or Chrome has remote debugging off. Use "Test connection" on `/chrome/`, then retry |
+| `could not resolve the active profile / endpoint` | No active profile is selected, the SSH tunnel to the workstation is down, or Chrome has remote debugging off. Check the profile settings, then retry |
 | Commands hang | Chrome on the workstation may be waiting for someone to allow the remote debugging connection; ask the user to approve it |
+| `Could not find Google Chrome executable ... /opt/google/chrome/chrome` | A daemon was started without the browser endpoint, usually by a direct `chrome-devtools` call, so it tried to launch a local Chrome. Run `chrome_cli.sh --sync`; the wrapper also repairs it on its next call |
 | Wrong pages or wrong browser | `chrome_cli.sh --info` to see the active profile, then `--sync` |
 | Tool "unknown command" | Its tool group is off in the wrapper (only extensions and network mocks are on) |
 | Version mismatch warning | `chrome_cli.sh --sync` restarts the daemon on the installed version |

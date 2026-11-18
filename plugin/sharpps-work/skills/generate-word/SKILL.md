@@ -44,7 +44,8 @@ Generation does not require Office or LibreOffice; visual verification is separa
   runnable construction snippets and reusable helpers, including raw OOXML shading.
 - [Setup, verification, and output location](references/setup-and-verification.md)
   contains installation, reopening checks, validation limits, and delivery rules.
-- For live images, optionally use [screen-capture](../screen-capture/SKILL.md).
+- For live images of a running page, optionally use [browser-debug](../browser-debug/SKILL.md)
+  (`take_screenshot`; it also resolves which Chrome access to use).
 - For an existing findings record, optionally use content from
   [findings](../findings/SKILL.md); map metadata to a
   title-page table and numbered findings to subheadings without redoing the drafting.

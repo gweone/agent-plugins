@@ -36,9 +36,8 @@ Write the expected value down before looking at the actual one.
 
 ## Auth and roles
 
-- Log in once per role in its own session; reuse with `state-save role_admin.json` /
-  `state-load role_admin.json`. Treat those files as secrets: keep them out of git and
-  delete them when finished.
+- Log in once per role in its own session and reuse the saved state; see
+  [auth and state](auth-and-state.md).
 - Test permission boundaries with a low-privilege role as well as an admin, and
   confirm the restricted role *cannot* reach the restricted screen.
 
