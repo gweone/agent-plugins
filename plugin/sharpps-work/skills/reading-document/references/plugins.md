@@ -1,8 +1,9 @@
-# Plugins: check first, defaults without them
+# Plugins: optional recommendations
 
-Plugins differ per workstation. Everything in the other references describes the **default
-with no plugins**; an installed plugin can improve or change it, so the agent checks before
-converting, not after a failure.
+Plugins are **recommendations, never requirements**. No file type needs one: everything in
+the other references is the default with no plugins, and the task proceeds without them.
+Plugins differ per workstation, so when one happens to be installed it may improve a result
+for some file types, and the agent can use it after the checks below.
 
 ## Check
 
@@ -19,7 +20,8 @@ markitdown --help | grep -i llm  # does this version's CLI have model options?
 
 1. **List** the installed plugins and note which file types each covers (`pip show <package>`,
    and the package description on PyPI).
-2. **Decide** whether one fits the file. For scanned PDFs and images, an OCR plugin does.
+2. **Decide** whether one would help. For scanned PDFs and images an OCR plugin may; without
+   one the default route still works (report the gap, or choose another route with the user).
 3. **Read its requirements**: a model client, an API key, network access, cost.
 4. **Check the data flow.** If it sends content to an external service, get approval first,
    exactly as for the Azure options. Prefer not to send confidential documents.
@@ -27,8 +29,11 @@ markitdown --help | grep -i llm  # does this version's CLI have model options?
    checks in [formats and limits](formats-and-limits.md): a plugin can change the output
    format, not only add text.
 6. **Report** which plugin you used and anything still unread.
-7. A plugin that is not installed but would help: name it and ask before installing. Do not
-   install silently.
+7. **Recommend a plugin that is not installed by asking.** Name the plugin and why it would
+   help, what it needs (for example a model client and API key) and what it sends out, then
+   ask whether it may be installed, or whether the user prefers a different plugin. Install
+   only after a yes. If they decline, continue with the default route; meanwhile carry on
+   with the parts of the task that do not need it.
 
 ## The OCR plugin (`ocr`, package `markitdown-ocr`)
 

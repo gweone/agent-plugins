@@ -4,8 +4,8 @@ What `markitdown` produces for each file type, and what to check before trusting
 Observed with markitdown 0.1.9 on generated sample files; real documents vary, so verify
 against the source for anything that matters.
 
-These are the **defaults without plugins**. An installed plugin can change them, so check
-`markitdown --list-plugins` first ([plugins](plugins.md)).
+These are the **defaults without plugins**. A plugin is an optional extra that can change
+them when one is installed ([plugins](plugins.md)).
 
 ## Per format (default, without plugins)
 
@@ -52,9 +52,9 @@ grep -c 'NaN' /tmp/work/book.md                       # uncalculated formulas or
 
 ## Scanned PDFs and images
 
-By default there is no text to extract. First check for an OCR-capable plugin
-(`markitdown --list-plugins`, see [plugins](plugins.md)). If there is none, or it cannot run
-here, say so and choose with the user: render the pages to images and look at them (for
+By default there is no text to extract. An OCR plugin may help if one is installed or the user
+agrees to install one (optional; ask, see [plugins](plugins.md)). Otherwise, or if it cannot
+run here, say so and choose with the user: render the pages to images and look at them (for
 example with poppler's `pdftoppm -r 150 -png`, if available), ask for a text-based copy, or
 use an OCR route they approve. Do not summarize from a conversion with no text.
 

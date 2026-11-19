@@ -35,7 +35,8 @@ Both modes share [setup](references/setup.md) and [auth and state](references/au
      otherwise follow [setup](references/setup.md).
 3. **Run**
    - Test: run each scenario in a named session per [testing](references/testing.md);
-     assert on snapshot/console/network, not on exit codes.
+     assert on snapshot/console/network, not on exit codes. For a repeatable flow, generate a
+     script per [script generation](references/script-generation.md).
    - Capture: use an isolated context and separate role state files per
      [screenshot capture](references/screenshot-capture.md).
 4. **Review**
@@ -59,7 +60,9 @@ Both modes share [setup](references/setup.md) and [auth and state](references/au
   from the approved source. Saved state (`state-save`, `storageState`) and persistent
   profiles hold live sessions: sensitive, not deliverables.
 - After every step, check the result against the expectation or intended screen before
-  moving on; a click that "succeeded" can still land on the wrong screen.
+  moving on; a click that "succeeded" can still land on the wrong screen. Confirm each action
+  by the response or element change it causes, and wait for readiness and for API calls: no
+  fixed sleeps, no gap between steps ([script generation](references/script-generation.md)).
 - A failure is only a bug after you retry once with a fresh snapshot (stale refs, timing)
   and confirm it against the written criteria. Flaky means unresolved, not passed.
 - For a local virtual host, navigate with the real hostname and a Chromium resolver rule;
@@ -78,6 +81,9 @@ Both modes share [setup](references/setup.md) and [auth and state](references/au
   smoke tests, local-domain routing, cleanup.
 - [Auth and state](references/auth-and-state.md): roles, saved sessions, login in scripts,
   credential handling, session-artifact cleanup.
+- [Script generation](references/script-generation.md): gap-free Playwright scripts (confirm every
+  click by response or element change, wait for ready and for API calls), automatic
+  default-browser detection, and the tested helpers in `scripts/`.
 - [Testing](references/testing.md): command patterns, assertions, controlled conditions,
   failure evidence, report template, promoting flows to `npx playwright test` specs.
 - [Screenshot capture](references/screenshot-capture.md): selector pitfalls, review loop,
