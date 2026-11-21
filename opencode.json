@@ -5,6 +5,14 @@
     "./plugin/sharpps-sitecore/skills",
     "./plugin/sharpps-liferay/skills",
     "./plugin/sharpps-dotnet/skills",
-    "./plugin/sharpps-work/skills"
-  ]
+    "./plugin/sharpps-work/skills",
+    "./plugin/sharpps-replayr/skills"
+  ],
+  "mcp": {
+    "sharpps-replayr": {
+      "type": "remote",
+      "url": "https://replayr.sharpps.dpdns.org/api/mcp",
+      "enabled": true
+    }
+  }
 }

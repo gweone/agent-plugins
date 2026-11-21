@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sharpps-replayr": {
+      "type": "http",
+      "url": "https://replayr.sharpps.dpdns.org/api/mcp"
+    }
+  }
+}

@@ -5,7 +5,10 @@
   "plugins": [
     {
       "name": "sharpps-knowledge",
-      "source": {"source": "local", "path": "./plugin/sharpps-knowledge"}
+      "source": {
+        "source": "local",
+        "path": "./plugin/sharpps-knowledge"
+      }
     },
     {
       "name": "sharpps-sitecore",
@@ -33,6 +36,13 @@
       "source": {
         "source": "local",
         "path": "./plugin/sharpps-work"
+      }
+    },
+    {
+      "name": "sharpps-replayr",
+      "source": {
+        "source": "local",
+        "path": "./plugin/sharpps-replayr"
       }
     }
   ]
