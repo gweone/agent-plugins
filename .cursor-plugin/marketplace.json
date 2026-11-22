@@ -33,9 +33,9 @@
       "description": "Office and documentation tooling for SharpPS: headless screenshots of authenticated apps (including multi-tenant/local domains), OpenXML Word (.docx) via python-docx, codebase-memory-mcp knowledge graphs, and short Findings/Feedback/Conclusion docs."
     },
     {
-      "name": "sharpps-replayr",
-      "source": "plugin/sharpps-replayr",
-      "description": "SharpPS Replayr MCP endpoint plus a skill to write, run and review Playwright tests on Replayr."
+      "name": "sharpps-mcp",
+      "source": "plugin/sharpps-mcp",
+      "description": "SharpPS Replayr MCP endpoint (Playwright tests, runs and reports) for any agent."
     }
   ]
 }

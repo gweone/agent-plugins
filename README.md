@@ -16,7 +16,7 @@ Add this marketplace, then install a plugin from it:
 /plugin install sharpps-liferay@sharpps-plugins
 /plugin install sharpps-dotnet@sharpps-plugins
 /plugin install sharpps-work@sharpps-plugins
-/plugin install sharpps-replayr@sharpps-plugins
+/plugin install sharpps-mcp@sharpps-plugins
 ```
 
 or browse for the plugin in `/plugin > Discover`.
@@ -39,8 +39,7 @@ To use these skills from another project, clone this repo somewhere (e.g.
     "~/agent-plugins/plugin/sharpps-sitecore/skills",
     "~/agent-plugins/plugin/sharpps-liferay/skills",
     "~/agent-plugins/plugin/sharpps-dotnet/skills",
-    "~/agent-plugins/plugin/sharpps-work/skills",
-    "~/agent-plugins/plugin/sharpps-replayr/skills"
+    "~/agent-plugins/plugin/sharpps-work/skills"
   ]
 }
 ```
@@ -53,7 +52,7 @@ To use these skills from another project, clone this repo somewhere (e.g.
 | [`sharpps-liferay`](plugin/sharpps-liferay) | Liferay knowledge and workflow tooling for solutions built on the SharpPS framework |
 | [`sharpps-dotnet`](plugin/sharpps-dotnet) | .NET tooling knowledge for solutions built on the SharpPS framework |
 | [`sharpps-work`](plugin/sharpps-work) | General office/documentation tooling (screen capture, Word document generation) — not tied to any one platform |
-| [`sharpps-replayr`](plugin/sharpps-replayr) | SharpPS Replayr MCP endpoint (`https://replayr.sharpps.dpdns.org/api/mcp`) and a skill to write, run and review Playwright tests, for any agent |
+| [`sharpps-mcp`](plugin/sharpps-mcp) | SharpPS Replayr MCP endpoint (`https://replayr.sharpps.dpdns.org/api/mcp`) for any agent: write, run and review Playwright tests. No skills; the server sends its own instructions |
 
 ## Plugin structure
 

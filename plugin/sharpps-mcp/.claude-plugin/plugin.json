@@ -1,0 +1,11 @@
+{
+  "name": "sharpps-mcp",
+  "displayName": "SharpPS Replayr",
+  "version": "1.0.0",
+  "description": "Connect any AI agent to SharpPS Replayr over MCP: write Playwright test scripts, run them on the Replayr runner, and read Jam-like reports (steps, console, network, video, trace).",
+  "author": {
+    "name": "SharpPS"
+  },
+  "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-mcp",
+  "mcpServers": "./.mcp.json"
+}

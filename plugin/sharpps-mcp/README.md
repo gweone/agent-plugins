@@ -1,6 +1,6 @@
-# sharpps-replayr 1.0.0
+# sharpps-mcp 1.0.0
 
-**SharpPS Replayr** for any AI agent. It adds the Replayr MCP endpoint and one skill (`replayr-testing`) that teaches the working loop: write a Playwright script, validate it, run it on the Replayr runner and read the report.
+**SharpPS Replayr** for any AI agent: just the Replayr MCP endpoint, no skills. The server itself sends usage instructions to the agent when it connects (the working loop, secrets, guarded actions), so every MCP client gets them.
 
 - Endpoint: `https://replayr.sharpps.dpdns.org/api/mcp` (Streamable HTTP)
 - Sign-in: OAuth (the agent opens a browser the first time) or an API token created under **Tokens** in Replayr
@@ -12,7 +12,7 @@ Claude Code, Codex, Cursor, Grok: install the plugin from this marketplace; the 
 
 ```
 /plugin marketplace add gweone/agent-plugins
-/plugin install sharpps-replayr@sharpps-plugins
+/plugin install sharpps-mcp@sharpps-plugins
 ```
 
 Then authorize the server (`/mcp` in Claude Code) and ask, for example: "Run the login tests on my staging project and tell me what failed."

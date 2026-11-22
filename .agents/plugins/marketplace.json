@@ -39,10 +39,10 @@
       }
     },
     {
-      "name": "sharpps-replayr",
+      "name": "sharpps-mcp",
       "source": {
         "source": "local",
-        "path": "./plugin/sharpps-replayr"
+        "path": "./plugin/sharpps-mcp"
       }
     }
   ]

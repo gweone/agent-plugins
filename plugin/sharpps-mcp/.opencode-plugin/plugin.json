@@ -1,0 +1,14 @@
+{
+  "name": "sharpps-mcp",
+  "version": "1.0.0",
+  "description": "MCP endpoint for SharpPS Replayr. OpenCode reads the MCP entry from opencode.json (see README), not from this file.",
+  "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-mcp",
+  "keywords": [
+    "sharpps",
+    "replayr",
+    "playwright",
+    "mcp",
+    "opencode"
+  ],
+  "category": "Development"
+}
