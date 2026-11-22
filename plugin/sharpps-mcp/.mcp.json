@@ -3,6 +3,10 @@
     "sharpps-replayr": {
       "type": "http",
       "url": "https://replayr.sharpps.dpdns.org/api/mcp"
+    },
+    "sharpps-groups": {
+      "type": "http",
+      "url": "https://groups.sharpps.dpdns.org/mcp"
     }
   }
 }

@@ -12,6 +12,11 @@
       "type": "remote",
       "url": "https://replayr.sharpps.dpdns.org/api/mcp",
       "enabled": true
+    },
+    "sharpps-groups": {
+      "type": "remote",
+      "url": "https://groups.sharpps.dpdns.org/mcp",
+      "enabled": true
     }
   }
 }

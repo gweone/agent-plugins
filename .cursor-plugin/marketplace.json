@@ -35,7 +35,7 @@
     {
       "name": "sharpps-mcp",
       "source": "plugin/sharpps-mcp",
-      "description": "SharpPS Replayr MCP endpoint (Playwright tests, runs and reports) for any agent."
+      "description": "SharpPS MCP endpoints for any agent: Replayr (Playwright tests, runs and reports) and Identity Groups."
     }
   ]
 }

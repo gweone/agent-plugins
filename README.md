@@ -52,7 +52,7 @@ To use these skills from another project, clone this repo somewhere (e.g.
 | [`sharpps-liferay`](plugin/sharpps-liferay) | Liferay knowledge and workflow tooling for solutions built on the SharpPS framework |
 | [`sharpps-dotnet`](plugin/sharpps-dotnet) | .NET tooling knowledge for solutions built on the SharpPS framework |
 | [`sharpps-work`](plugin/sharpps-work) | General office/documentation tooling (screen capture, Word document generation) — not tied to any one platform |
-| [`sharpps-mcp`](plugin/sharpps-mcp) | SharpPS Replayr MCP endpoint (`https://replayr.sharpps.dpdns.org/api/mcp`) for any agent: write, run and review Playwright tests. No skills; the server sends its own instructions |
+| [`sharpps-mcp`](plugin/sharpps-mcp) | SharpPS MCP endpoints for any agent: Replayr (`https://replayr.sharpps.dpdns.org/api/mcp`: write, run and review Playwright tests) and Identity Groups (`https://groups.sharpps.dpdns.org/mcp`: manage groups and members). No skills; the servers send their own instructions |
 
 ## Plugin structure
 

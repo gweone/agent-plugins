@@ -1,10 +1,24 @@
-# sharpps-mcp 1.0.0
+# sharpps-mcp 1.1.0
 
-**SharpPS Replayr** for any AI agent: just the Replayr MCP endpoint, no skills. The server itself sends usage instructions to the agent when it connects (the working loop, secrets, guarded actions), so every MCP client gets them.
+SharpPS MCP endpoints for any AI agent, no skills: **Replayr** (Playwright tests) and **Identity Groups** (Entra-style groups for Clerk). The servers send their own usage instructions when the agent connects, so every MCP client gets them.
+
+| Server | Endpoint | What it does |
+|---|---|---|
+| `sharpps-replayr` | `https://replayr.sharpps.dpdns.org/api/mcp` | Write, run and review Playwright tests |
+| `sharpps-groups` | `https://groups.sharpps.dpdns.org/mcp` | List groups and members, find users, add or remove members, create and delete groups |
+
+## Replayr
 
 - Endpoint: `https://replayr.sharpps.dpdns.org/api/mcp` (Streamable HTTP)
 - Sign-in: OAuth (the agent opens a browser the first time) or an API token created under **Tokens** in Replayr
 - Same roles as the web app: viewer, editor, admin. Destructive tools need `confirm: true`.
+
+## Identity Groups
+
+- Endpoint: `https://groups.sharpps.dpdns.org/mcp` (Streamable HTTP)
+- Sign-in: Clerk OAuth with CIMD, so no client ID is pre-registered. The agent opens a browser the first time and you approve the scopes.
+- Scopes decide which tools you see: `me:read` (`my_groups`), `groups:read` (list and read), `groups:write` (add or remove members) and `groups:admin` (create, rename, delete groups, resync). A read-only connection never lists write tools. Changing a group still needs an administrator, or the owner of that group.
+- Write tools accept `dry_run: true` to preview the before/after membership. Every call is recorded in the service's audit log with your user and the agent's client ID.
 
 ## Install
 

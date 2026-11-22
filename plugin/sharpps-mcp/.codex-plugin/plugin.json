@@ -1,7 +1,7 @@
 {
   "name": "sharpps-mcp",
-  "version": "1.0.0",
-  "description": "Connect any AI agent to SharpPS Replayr over MCP: write Playwright test scripts, run them on the Replayr runner, and read Jam-like reports (steps, console, network, video, trace).",
+  "version": "1.1.0",
+  "description": "Connect any AI agent to SharpPS over MCP: Replayr (write Playwright test scripts, run them on the Replayr runner, read Jam-like reports) and Identity Groups (list groups and members, add or remove members, with scoped OAuth).",
   "author": {
     "name": "SharpPS",
     "url": "https://github.com/gweone/agent-plugins"
@@ -10,9 +10,9 @@
   "repository": "https://github.com/gweone/agent-plugins",
   "mcpServers": "./.mcp.json",
   "interface": {
-    "displayName": "SharpPS Replayr",
-    "shortDescription": "Write, run and review Playwright tests on SharpPS Replayr over MCP.",
-    "longDescription": "Connect any AI agent to SharpPS Replayr over MCP: write Playwright test scripts, run them on the Replayr runner, and read Jam-like reports (steps, console, network, video, trace). Sign in with OAuth when the agent asks, or use an API token.",
+    "displayName": "SharpPS MCP",
+    "shortDescription": "Run Playwright tests on Replayr and manage Identity Groups over MCP.",
+    "longDescription": "Connect any AI agent to SharpPS over MCP: Replayr (write Playwright test scripts, run them on the Replayr runner, read Jam-like reports) and Identity Groups (list groups and members, add or remove members, with scoped OAuth). Sign in with OAuth when the agent asks (Replayr also accepts an API token).",
     "developerName": "SharpPS",
     "category": "Development",
     "websiteURL": "https://replayr.sharpps.dpdns.org"
