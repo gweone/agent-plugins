@@ -8,12 +8,12 @@
     "./plugin/sharpps-work/skills"
   ],
   "mcp": {
-    "sharpps-replayr": {
+    "SharpPS Replayr": {
       "type": "remote",
       "url": "https://replayr.sharpps.dpdns.org/api/mcp",
       "enabled": true
     },
-    "sharpps-groups": {
+    "SharpPS Groups": {
       "type": "remote",
       "url": "https://groups.sharpps.dpdns.org/mcp",
       "enabled": true

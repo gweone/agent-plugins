@@ -1,10 +1,10 @@
 {
   "mcpServers": {
-    "sharpps-replayr": {
+    "SharpPS Replayr": {
       "type": "http",
       "url": "https://replayr.sharpps.dpdns.org/api/mcp"
     },
-    "sharpps-groups": {
+    "SharpPS Groups": {
       "type": "http",
       "url": "https://groups.sharpps.dpdns.org/mcp"
     }

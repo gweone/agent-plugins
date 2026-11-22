@@ -4,8 +4,8 @@ SharpPS MCP endpoints for any AI agent, no skills: **Replayr** (Playwright tests
 
 | Server | Endpoint | What it does |
 |---|---|---|
-| `sharpps-replayr` | `https://replayr.sharpps.dpdns.org/api/mcp` | Write, run and review Playwright tests |
-| `sharpps-groups` | `https://groups.sharpps.dpdns.org/mcp` | List groups and members, find users, add or remove members, create and delete groups |
+| `SharpPS Replayr` | `https://replayr.sharpps.dpdns.org/api/mcp` | Write, run and review Playwright tests |
+| `SharpPS Groups` | `https://groups.sharpps.dpdns.org/mcp` | List groups and members, find users, add or remove members, create and delete groups |
 
 ## Replayr
 
