@@ -10,7 +10,7 @@ SharpPS MCP endpoints for any AI agent, no skills: **Replayr** (Playwright tests
 ## Replayr
 
 - Endpoint: `https://replayr.sharpps.dpdns.org/api/mcp` (Streamable HTTP)
-- Sign-in: OAuth (the agent opens a browser the first time) or an API token created under **Tokens** in Replayr
+- Sign-in: OAuth (the agent opens a browser the first time). Replayr has no separate API tokens: the agent acts as you, with your Replayr groups
 - Same roles as the web app: viewer, editor, admin. Destructive tools need `confirm: true`.
 
 ## Identity Groups
@@ -56,14 +56,6 @@ Clients that read `mcpServers` (Windsurf, Cline, Zed and others):
 ```
 
 Gemini CLI: `gemini mcp add --transport http sharpps-replayr https://replayr.sharpps.dpdns.org/api/mcp`
-
-### With an API token instead of OAuth
-
-Create a token in Replayr (Tokens page), export it as `REPLAYR_TOKEN` in your shell, and send it as a header. Never put the token itself in a file that is committed.
-
-```json
-{ "mcpServers": { "sharpps-replayr": { "type": "http", "url": "https://replayr.sharpps.dpdns.org/api/mcp", "headers": { "Authorization": "Bearer ${REPLAYR_TOKEN}" } } } }
-```
 
 ### More than one workspace
 
