@@ -70,7 +70,7 @@
       "name": "sharpps-mcp",
       "displayName": "SharpPS MCP",
       "description": "SharpPS over MCP for any AI agent: Replayr (write Playwright tests, run them, read Jam-like reports) and Identity Groups (manage groups and members with scoped OAuth). MCP endpoints only; the servers send their own usage instructions.",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "author": {
         "name": "SharpPS"
       },

@@ -1,4 +1,4 @@
-# sharpps-mcp 1.1.0
+# sharpps-mcp 1.1.1
 
 SharpPS MCP endpoints for any AI agent, no skills: **Replayr** (Playwright tests) and **Identity Groups** (Entra-style groups for Clerk). The servers send their own usage instructions when the agent connects, so every MCP client gets them.
 
