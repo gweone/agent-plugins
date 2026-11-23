@@ -8,8 +8,10 @@ SharpPS MCP endpoints for any AI agent: **Replayr** (Playwright tests) and **Ide
 | `SharpPS Groups` | `https://groups.sharpps.dpdns.org/mcp` | List groups and members, find users, add or remove members, create and delete groups |
 | `SharpPS Chrome Dev Tools` | `https://cloud.sharpps.dpdns.org/chrome/mcp` | Chrome DevTools tools on the shared SharpPS browser. Needs membership of the Chrome group |
 | `SharpPS Shells` | `https://cloud.sharpps.dpdns.org/shell/mcp` | Run shell commands, read and write files, and use persistent shell sessions on the SharpPS Cloud Workstation (the remote server), not in your local shell. Needs membership of the Shell group |
+| `SharpPS Attendance` | `https://cloud.sharpps.dpdns.org/attendance/mcp` | Clock in and out and read your attendance record through Talenta, with your own stored login. Needs membership of the Attendance group |
+| `SharpPS Trading` | `https://cloud.sharpps.dpdns.org/trading/mcp` | Market screening and analysis tools, plus live Indodax trading and the trading bot. Spends real money: needs membership of the Trading group |
 
-The two `cloud.sharpps.dpdns.org` servers only let in people who belong to their group in SharpPS Groups. If a server refuses you, ask an administrator to add you there.
+The four `cloud.sharpps.dpdns.org` servers (Chrome, Shells, Attendance, Trading) sign in with Clerk and only let in people who belong to their group in SharpPS Groups. If a server refuses you, ask an administrator to add you there.
 
 ## Replayr
 

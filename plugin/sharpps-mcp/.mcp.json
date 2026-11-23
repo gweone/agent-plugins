@@ -15,6 +15,14 @@
     "SharpPS Shells": {
       "type": "http",
       "url": "https://cloud.sharpps.dpdns.org/shell/mcp"
+    },
+    "SharpPS Attendance": {
+      "type": "http",
+      "url": "https://cloud.sharpps.dpdns.org/attendance/mcp"
+    },
+    "SharpPS Trading": {
+      "type": "http",
+      "url": "https://cloud.sharpps.dpdns.org/trading/mcp"
     }
   }
 }
