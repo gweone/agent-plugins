@@ -7,6 +7,10 @@
     "SharpPS Groups": {
       "type": "http",
       "url": "https://groups.sharpps.dpdns.org/mcp"
+    },
+    "SharpPS Chrome Dev Tools": {
+      "type": "http",
+      "url": "https://cloud.sharpps.dpdns.org/chrome/mcp"
     }
   }
 }

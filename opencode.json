@@ -5,7 +5,8 @@
     "./plugin/sharpps-sitecore/skills",
     "./plugin/sharpps-liferay/skills",
     "./plugin/sharpps-dotnet/skills",
-    "./plugin/sharpps-work/skills"
+    "./plugin/sharpps-work/skills",
+    "./plugin/sharpps-mcp/skills"
   ],
   "mcp": {
     "SharpPS Replayr": {

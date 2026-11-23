@@ -9,6 +9,7 @@
   "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-mcp",
   "repository": "https://github.com/gweone/agent-plugins",
   "mcpServers": "./.mcp.json",
+  "skills": "./skills/",
   "interface": {
     "displayName": "SharpPS MCP",
     "shortDescription": "Run Playwright tests on Replayr and manage Identity Groups over MCP.",
