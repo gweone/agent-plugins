@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "SharpPS Knowledge": {
+      "type": "http",
+      "url": "https://cloud.sharpps.dpdns.org/knowledge/mcp"
+    }
+  }
+}

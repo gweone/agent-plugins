@@ -10,7 +10,7 @@
     {
       "name": "sharpps-knowledge",
       "source": "plugin/sharpps-knowledge",
-      "description": "Evidence-backed Knowledge MCP retrieval, learning and guarded review; no bundled MCP."
+      "description": "Evidence-backed Knowledge MCP retrieval, learning and guarded review; bundles the SharpPS Knowledge MCP entry."
     },
     {
       "name": "sharpps-sitecore",

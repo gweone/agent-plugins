@@ -11,6 +11,10 @@
     "SharpPS Chrome Dev Tools": {
       "type": "http",
       "url": "https://cloud.sharpps.dpdns.org/chrome/mcp"
+    },
+    "SharpPS Shells": {
+      "type": "http",
+      "url": "https://cloud.sharpps.dpdns.org/shell/mcp"
     }
   }
 }

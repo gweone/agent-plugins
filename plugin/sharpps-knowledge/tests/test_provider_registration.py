@@ -161,7 +161,10 @@ class ProviderRegistrationTests(unittest.TestCase):
         for provider in ("codex", "cursor", "grok", "opencode"):
             folder = BASE / f".{provider}-plugin"
             self.assertEqual(list(folder.iterdir()), [folder / "plugin.json"])
-            self.assertNotIn("mcpServers", self.manifest(provider))
+            if provider == "opencode":
+                self.assertNotIn("mcpServers", self.manifest(provider))
+            else:
+                self.assertEqual(self.manifest(provider)["mcpServers"], "./.mcp.json")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
-# sharpps-knowledge 1.3.1
+# sharpps-knowledge 1.4.1
 
-Portable skills for scoped Knowledge MCP retrieval, minimized evidence-backed drafts, independent review and reuse feedback. This plugin **does not bundle, install or configure an MCP server**. First connect a compatible standalone/custom/local/combined Knowledge connector through your client's own supported setup. Shared knowledge means existing curated collections explicitly requested in the conversation, never internet anonymous public search. Exposed capabilities and schemas, not the connector's name, determine support.
+Portable skills for scoped Knowledge MCP retrieval, minimized evidence-backed drafts, independent review and reuse feedback. The plugin bundles one MCP server entry, `SharpPS Knowledge` (`https://cloud.sharpps.dpdns.org/knowledge/mcp`, sign-in with your SharpPS account, access by membership of the Knowledge MCP group); the skills do not depend on it and work with any compatible standalone/custom/local/combined Knowledge connector set up through your client's own supported setup. Shared knowledge means existing curated collections explicitly requested in the conversation, never internet anonymous public search. Exposed capabilities and schemas, not the connector's name, determine support.
 
 ## Use
 

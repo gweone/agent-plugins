@@ -1,11 +1,15 @@
-# sharpps-mcp 1.1.1
+# sharpps-mcp 1.4.1
 
-SharpPS MCP endpoints for any AI agent: **Replayr** (Playwright tests) and **Identity Groups** (Entra-style groups for Clerk). The servers send their own usage instructions when the agent connects, so every MCP client gets them. The plugin also ships one skill with the detail for persistent Shells sessions, listed under Skills below.
+SharpPS MCP endpoints for any AI agent: **Replayr** (Playwright tests) and **Identity Groups** (Entra-style groups for Clerk). The servers send their own usage instructions when the agent connects, so every MCP client gets them. The plugin ships no skills: any detailed guidance is served by the MCP servers themselves.
 
 | Server | Endpoint | What it does |
 |---|---|---|
 | `SharpPS Replayr` | `https://replayr.sharpps.dpdns.org/api/mcp` | Write, run and review Playwright tests |
 | `SharpPS Groups` | `https://groups.sharpps.dpdns.org/mcp` | List groups and members, find users, add or remove members, create and delete groups |
+| `SharpPS Chrome Dev Tools` | `https://cloud.sharpps.dpdns.org/chrome/mcp` | Chrome DevTools tools on the shared SharpPS browser. Needs membership of the Chrome group |
+| `SharpPS Shells` | `https://cloud.sharpps.dpdns.org/shell/mcp` | Run shell commands, read and write files, and use persistent shell sessions on the SharpPS Cloud Workstation (the remote server), not in your local shell. Needs membership of the Shell group |
+
+The two `cloud.sharpps.dpdns.org` servers only let in people who belong to their group in SharpPS Groups. If a server refuses you, ask an administrator to add you there.
 
 ## Replayr
 
@@ -19,12 +23,6 @@ SharpPS MCP endpoints for any AI agent: **Replayr** (Playwright tests) and **Ide
 - Sign-in: Clerk OAuth with CIMD, so no client ID is pre-registered. The agent opens a browser the first time and you approve the scopes.
 - Scopes decide which tools you see: `me:read` (`my_groups`), `groups:read` (list and read), `groups:write` (add or remove members) and `groups:admin` (create, rename, delete groups, resync). A read-only connection never lists write tools. Changing a group still needs an administrator, or the owner of that group.
 - Write tools accept `dry_run: true` to preview the before/after membership. Every call is recorded in the service's audit log with your user and the agent's client ID.
-
-## Skills
-
-| Skill | Use for |
-|---|---|
-| `shell-session` | Detail for persistent `shell_session_*` terminals on a SharpPS Shells host (local pty or SSH). Loaded only when the user explicitly asks for one. Ordinary commands and file work need no skill: the Shells server sends the one-shot-first rule in its own initialize instructions. References: lifecycle and context, local pty, SSH transport and authentication. |
 
 ## Install
 

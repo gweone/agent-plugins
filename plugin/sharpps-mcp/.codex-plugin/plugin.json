@@ -1,6 +1,6 @@
 {
   "name": "sharpps-mcp",
-  "version": "1.1.1",
+  "version": "1.4.1",
   "description": "Connect any AI agent to SharpPS over MCP: Replayr (write Playwright test scripts, run them on the Replayr runner, read Jam-like reports) and Identity Groups (list groups and members, add or remove members, with scoped OAuth).",
   "author": {
     "name": "SharpPS",
@@ -9,7 +9,6 @@
   "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-mcp",
   "repository": "https://github.com/gweone/agent-plugins",
   "mcpServers": "./.mcp.json",
-  "skills": "./skills/",
   "interface": {
     "displayName": "SharpPS MCP",
     "shortDescription": "Run Playwright tests on Replayr and manage Identity Groups over MCP.",

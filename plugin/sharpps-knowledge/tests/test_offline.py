@@ -92,7 +92,10 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(manifest["version"], plugin_version())
             self.assertEqual(manifest["skills"], "./skills/")
             self.assertEqual(list(folder.iterdir()), [folder / "plugin.json"])
-            self.assertNotIn("mcpServers", manifest)
+            if provider == "opencode":
+                self.assertNotIn("mcpServers", manifest)  # OpenCode reads opencode.json, not this file
+            else:
+                self.assertEqual(manifest["mcpServers"], "./.mcp.json")
 
     def test_registration(self):
         for relative, source in ((".claude-plugin/marketplace.json", "./plugin/sharpps-knowledge"),
