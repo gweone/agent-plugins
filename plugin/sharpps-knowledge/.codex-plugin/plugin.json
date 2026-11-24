@@ -1,6 +1,6 @@
 {
   "name": "sharpps-knowledge",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Evidence-backed Knowledge MCP retrieval, draft extraction and separately guarded review using already host-exposed tools.",
   "author": {
     "name": "SharpPS"
@@ -16,6 +16,10 @@
     "longDescription": "Evidence-backed Knowledge MCP retrieval, draft extraction and separately guarded review using already host-exposed tools.",
     "developerName": "SharpPS",
     "category": "Productivity",
-    "websiteURL": "https://github.com/gweone/agent-plugins"
-  }
+    "websiteURL": "https://github.com/gweone/agent-plugins",
+    "privacyPolicyURL": "https://sharpps.dpdns.org/privacy-mcp",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/icon.png"
+  },
+  "license": "MIT"
 }

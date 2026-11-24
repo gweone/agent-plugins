@@ -1,6 +1,6 @@
 {
   "name": "sharpps-work",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Office and documentation tooling for SharpPS: headless screenshots of authenticated apps (including multi-tenant/local domains), OpenXML Word (.docx) via python-docx, codebase-memory-mcp knowledge graphs, short Findings/Feedback/Conclusion docs, Chrome DevTools MCP page debugging, and Playwright CLI QA testing.",
   "author": {
     "name": "SharpPS"
@@ -11,5 +11,8 @@
     "sharpps",
     "sharpps-work",
     "cursor"
-  ]
+  ],
+  "license": "MIT",
+  "repository": "https://github.com/gweone/agent-plugins",
+  "logo": "assets/icon.png"
 }

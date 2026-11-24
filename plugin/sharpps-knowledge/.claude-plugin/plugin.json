@@ -1,6 +1,6 @@
 {
   "name": "sharpps-knowledge",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Evidence-backed Knowledge MCP retrieval, draft extraction and separately guarded review using already host-exposed tools.",
   "author": {
     "name": "SharpPS"
@@ -13,5 +13,7 @@
     "./agents/knowledge-reviewer.md",
     "./agents/knowledge-retriever.md"
   ],
-  "hooks": "./hooks/knowledge-hooks.json"
+  "hooks": "./hooks/knowledge-hooks.json",
+  "privacyPolicyUrl": "https://sharpps.dpdns.org/privacy-mcp",
+  "license": "MIT"
 }

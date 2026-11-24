@@ -1,6 +1,6 @@
 {
   "name": "sharpps-dotnet",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": ".NET tooling for SharpPS solutions: decompile Framework and .NET Core/5+ assemblies with ilspycmd, SharpPS.Shells pipelines (register, run, patch), and recurring C# patterns (DI auto-discovery, storage providers, pipeline processors, ASP.NET Core plugin-host bootstrap).",
   "author": {
     "name": "SharpPS"
@@ -11,5 +11,8 @@
     "sharpps",
     "sharpps-dotnet",
     "cursor"
-  ]
+  ],
+  "license": "MIT",
+  "repository": "https://github.com/gweone/agent-plugins",
+  "logo": "assets/icon.png"
 }

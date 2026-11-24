@@ -1,6 +1,6 @@
 {
   "name": "sharpps-mcp",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "MCP endpoints for SharpPS Replayr and SharpPS Identity Groups. OpenCode reads the MCP entry from opencode.json (see README), not from this file.",
   "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-mcp",
   "keywords": [
@@ -11,5 +11,6 @@
     "mcp",
     "opencode"
   ],
-  "category": "Development"
+  "category": "Development",
+  "license": "MIT"
 }

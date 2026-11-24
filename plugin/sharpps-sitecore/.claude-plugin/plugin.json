@@ -1,10 +1,11 @@
 {
   "name": "sharpps-sitecore",
   "displayName": "SharpPS for Sitecore",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Sitecore/SXA knowledge for SharpPS solutions: SPE/Shells for publish and Unicorn, SXA search (/sxa/search/*), Feature/Foundation projects, Controller Renderings with custom .cshtml paths, datasource-driven HTML, CorePipeline processors, idempotent SQL scripts for Database/Database.Tools, and HTTP database access via DatabaseController.",
   "author": {
     "name": "SharpPS"
   },
-  "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-sitecore"
+  "homepage": "https://github.com/gweone/agent-plugins/tree/main/plugin/sharpps-sitecore",
+  "license": "MIT"
 }
